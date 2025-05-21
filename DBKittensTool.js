@@ -544,11 +544,11 @@ DBTools.AutoUnicorn = {
     },
     run: function (forced) {
         if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
-            if (DBTools.Utils.resource_table["unicorns"].value >= (this.min_val + (this.base_cost * this.multiplier))) { this.click_hijack.onClick() }
+            if (DBTools.Utils.resource_table["unicorns"].value >= (this.min_val + (this.base_cost * this.multiplier))) { this.click_hijack.domNode.click() }
         }
     },
     click_hijack : {
-        onClick : function(){this.init()}
+        domNode : { click : function(){DBTools.AutoUnicorn.init()} }
     },
     init: function(){
         if(DBTools.Utils.NullCheck(game.religionTab.sacrificeBtn)){
