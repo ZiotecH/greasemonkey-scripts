@@ -172,7 +172,7 @@ DBTools.Utils = {
     messages : {
         wrapper : function(message){
             game.msg(`${message}`,null,null,true)
-            game.msg(`DBTools ${DBTools.Utils.Timestamp()}`, null, null, null)
+            game.msg(`DBTools ${DBTools.Utils.TimeStamp()}`, null, null, null)
         },
         toggled : function(what_value,from_value,to_value){
            this.wrapper(`Toggled ${what_value} from ${from_value} to ${to_value}.`)
