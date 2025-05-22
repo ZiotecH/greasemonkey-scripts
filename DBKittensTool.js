@@ -309,20 +309,20 @@ DBTools.AutoCrafter = {
         this.enabled = !this.enabled
     },
     settings: {
-        wood: { enabled: true, multiplier: 100 },
-        beam: { enabled: true, multiplier: 10 },
-        scaffold: { enabled: false, multiplier: 1 },
-        ship: { enabled: false, multiplier: 1 },
-        slab: { enabled: true, multiplier: 1 },
-        plate: { enabled: false, multiplier: 1 },
-        steel: { enabled: true, multiplier: 1 },
-        gear: { enabled: false, multiplier: 1 },
-        alloy: { enabled: false, multiplier: 1 },
-        megalith: { enabled: false, multiplier: 1 },
-        parchment: { enabled: false, multiplier: 1 },
-        manuscript: { enabled: false, multiplier: 1 },
-        compendium: { enabled: false, multiplier: 1 },
-        blueprint: { enabled: false, multiplier: 1 },
+        wood:       { enabled: true,    multiplier: 100 },
+        beam:       { enabled: true,    multiplier: 10 },
+        scaffold:   { enabled: false,   multiplier: 1 },
+        ship:       { enabled: false,   multiplier: 1 },
+        slab:       { enabled: true,    multiplier: 10 },
+        plate:      { enabled: false,   multiplier: 1 },
+        steel:      { enabled: true,    multiplier: 1 },
+        gear:       { enabled: true,    multiplier: 1 },
+        alloy:      { enabled: true,    multiplier: 1 },
+        megalith:   { enabled: false,   multiplier: 1 },
+        parchment:  { enabled: true,    multiplier: 50 },
+        manuscript: { enabled: false,   multiplier: 1 },
+        compendium: { enabled: true,    multiplier: 1 },
+        blueprint:  { enabled: true,    multiplier: 1 },
     },
 
     generic_max_value_scale : 100,
@@ -419,7 +419,7 @@ DBTools.AutoCrafter = {
             var current_resource = Object.assign({}, DBTools.Utils.resource_table[this.prereqs[resource].ingredients[index].name])
             current_resource.calculated_maxValue = current_resource.maxValue
             current_resource.base_cost = this.prereqs[resource].ingredients[index].cost
-            current_resource.min_val = this.prereqs[resource].ingredients[index].min_val
+            current_resource.min_val = DBTools.Utils.IntCheck(this.prereqs[resource].ingredients[index].min_val,-1)
             current_resource.calculated_cost = current_resource.base_cost * cost_multiplier
             
             if(current_resource.maxValue <= 0){
@@ -427,7 +427,7 @@ DBTools.AutoCrafter = {
             }
 
             var at_cap = (current_resource.value > (current_resource.calculated_maxValue - current_resource.base_cost))
-            if(current_resource.min_val >= 1){at_cap = (current_resource.value > min_val)}
+            if (current_resource.min_val >= 1) { at_cap = (current_resource.value > current_resource.min_val)}
             var can_afford = (current_resource.value > current_resource.calculated_cost)
             var is_gaining = (current_resource.perTickCached > 0)
             var is_safe = !this.prereqs[resource].requires_positive
@@ -492,8 +492,8 @@ DBTools.AutoCrafter = {
     update_multiplier : function(resource, new_multiplier){
         if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) { return false }
         new_multiplier = Math.max(DBTools.Utils.IntCheck(new_multiplier),1)
+        DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.settings[resource].multiplier, new_multiplier)
         this.settings[resource].multiplier = new_multiplier
-        DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.setting[resource].multiplier, new_multiplier)
     },
 
     set_scale : function(number){
