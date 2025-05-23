@@ -302,9 +302,9 @@ DBTools.Utils = {
         * @param {integer} input_multiplier 
         */
         autocrafter_settings: function(input_name,input_enabled,input_multiplier){
-            game.msg(`${input_multiplier}`, "DBTools.AutoCrafter", "item_settings", true)
-            game.msg(`${input_enabled}`, "DBTools.AutoCrafter", "item_settings", true)
-            game.msg(`${input_name}`, "DBTools.AutoCrafter", "item_settings", true)
+            game.msg(`Multiplier: ${input_multiplier}`, "DBTools.AutoCrafter", "item_settings", true)
+            game.msg(`Enabled: ${input_enabled}`, "DBTools.AutoCrafter", "item_settings", true)
+            game.msg(`Name: ${input_name}`, "DBTools.AutoCrafter", "item_settings", true)
             game.msg(`${DBTools.Utils.TimeStamp()} AutoCrafter - Settings`, "DBTools.AutoCrafter", "item_settings", null)
         },
     },
