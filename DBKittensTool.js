@@ -584,6 +584,22 @@ DBTools.AutoCrafter = {
      * @type {boolean}
      */
     enabled: false,
+    handled_craftables: [
+        "wood",
+        "beam",
+        "scaffold",
+        "ship",
+        "slab",
+        "plate",
+        "steel",
+        "gear",
+        "alloy",
+        "megalith",
+        "parchment",
+        "manuscript",
+        "compendium",
+        "blueprint"
+    ],
 
     /**
      * @returns {void}
@@ -840,9 +856,84 @@ DBTools.AutoCrafter = {
         this.generic_max_value_scale = number
         console.log(`[DBTools - Info]: generic_max_value_scale: ${this.generic_max_value_scale}`)
         return this.generic_max_value_scale
-    }
+    },
 
+    /**
+     * @param {boolean} enabled
+     * @param {object} settings
+     * @param {object} prereqs
+     * @param {integer} generic_max_value_scale
+     * @returns {boolean}
+     */
+    load_data: function (enabled, settings, prereqs, generic_max_value_scale) {
+        var valid_enabled = DBTools.Utils.BoolCheck(enabled, true, false)
+        var valid_settings = DBTools.Utils.TypeCheck(settings, 'object')
+        var valid_prereqs = DBTools.Utils.TypeCheck(prereqs, 'object')
+        var valid_generic_max_value_scale = DBTools.Utils.TypeCheck(generic_max_value_scale, 'number')
+        var valid_inputs = (valid_enabled && valid_settings && valid_prereqs && valid_generic_max_value_scale)
+        //  TODO:
+        //  Implement proper settings/prereqs validation 
 
+        if (valid_inputs) {
+            var clamped_scale = DBTools.Utils.Clamp(generic_max_value_scale, 1, Number.MAX_SAFE_INTEGER)
+            this.enabled = enabled
+            //this.settings = settings
+            for(var index = 0; index < this.handled_craftables; index ++){
+                var name = this.handled_craftables[index]
+                if (DBTools.Utils.HasValue(settings[name])){
+                    var saved = settings[name]
+                    var valid_setting = (DBTools.Utils.BoolCheck(saved.enabled, true, false) && (DBTools.Utils.IntCheck(saved.multiplier,1)))
+                    if(valid_setting){
+                        this.settings[name].enabled = saved.enabled
+                        this.settings[name].multiplier = DBTools.Utils.Clamp(saved.multiplier, 1, Number.MAX_SAFE_INTEGER)
+                    }else{
+                        console.log(`Warning: Saved settings for ${name} are invalid.`)
+                    }
+                    saved = prereqs[name]
+                    var valid_prereq = (DBTools.Utils.TypeCheck(saved.ingredients, 'array'))
+                }
+            }
+            //this.prereqs = prereqs
+            this.generic_max_value_scale = clamped_scale
+            return true
+        } else {
+            var err_header = `Error`;
+            var composed_msg;
+            var err_count = 0;
+            var error_array = [];
+            var invalid_state = `Invalid enabled state: `
+            var invalid_settings = `Invalid settings value: `
+            var invalid_prereqs = `Invalid prereqs value: `
+            var invalid_generic_max_value_scale = `Invalid generic_max_value_scale value: `
+            if (!valid_enabled) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
+                error_array.push(`${invalid_state}${enabled}`)
+            }
+            if (!valid_settings) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_settings}${settings}`
+                error_array.push(`${invalid_settings}${settings}`)
+            }
+            if (!valid_prereqs) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_prereqs}${prereqs}`
+                error_array.push(`${invalid_prereqs}${prereqs}`)
+            }
+            if (!valid_generic_max_value_scale) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_generic_max_value_scale}${generic_max_value_scale}`
+                error_array.push(`${invalid_generic_max_value_scale}${generic_max_value_scale}`)
+            }
+            if (err_count > 1) {
+                err_header = `${err_header}s`
+            }
+            composed_msg = `${err_header}${composed_msg}`
+            DBTools.Utils.messages.errormsg(`AutoUnicorn.load_data`, error_array)
+            console.log(composed_msg)
+            return false
+        }
+    },
 }
 
 DBTools.AutoReligion = {
@@ -884,7 +975,48 @@ DBTools.AutoReligion = {
         if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
             if (DBTools.Utils.resource_table["faith"].value >= (DBTools.Utils.resource_table["faith"].maxValue * this.percent)) { game.religion.praise() }
         }
-    }
+    },
+
+    /**
+     * @param {boolean} enabled
+     * @param {float} percent
+     * @returns {boolean}
+     */
+    load_data: function (enabled, percent) {
+        var valid_enabled = DBTools.Utils.BoolCheck(enabled, true, false)
+        var valid_percent = DBTools.Utils.TypeCheck(percent, 'number')
+        var valid_inputs = (valid_enabled && valid_percent)
+        if (valid_inputs) {
+            var clamped_percent = DBTools.Utils.Clamp(percent, 0, 1)
+            this.enabled = enabled
+            this.percent = clamped_percent
+            return true
+        } else {
+            var err_header = `Error`;
+            var composed_msg;
+            var err_count = 0;
+            var error_array = [];
+            var invalid_state = `Invalid enabled state: `
+            var invalid_percent = `Invalid percent value: `
+            if (!valid_enabled) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
+                error_array.push(`${invalid_state}${enabled}`)
+            }
+            if (!valid_percent) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_percent}${percent}`
+                error_array.push(`${invalid_percent}${percent}`)
+            }
+            if (err_count > 1) {
+                err_header = `${err_header}s`
+            }
+            composed_msg = `${err_header}${composed_msg}`
+            DBTools.Utils.messages.errormsg(`AutoReligion.load_data`, error_array)
+            console.log(composed_msg)
+            return false
+        }
+    },
 }
 
 DBTools.AutoUnicorn = {
@@ -973,7 +1105,68 @@ DBTools.AutoUnicorn = {
      */
     hijacker: function () {
         this.click_hijack = Object.assign({}, game.religionTab.sacrificeBtn)
-    }
+    },
+
+    /**
+     * @param {boolean} enabled
+     * @param {integer} min_val
+     * @param {integer} multiplier
+     * @param {integer} base_cost
+     * @returns {boolean}
+     */
+    load_data: function (enabled, min_val, multiplier, base_cost) {
+        var valid_enabled = DBTools.Utils.BoolCheck(enabled, true, false)
+        var valid_min_val = DBTools.Utils.TypeCheck(min_val, 'number')
+        var valid_multiplier = DBTools.Utils.TypeCheck(multiplier, 'number')
+        var valid_base_cost = DBTools.Utils.TypeCheck(base_cost, 'number')
+        var valid_inputs = (valid_enabled && valid_min_val && valid_multiplier && valid_base_cost)
+        if (valid_inputs) {
+            var clamped_minval = DBTools.Utils.Clamp(min_val, 1, Number.MAX_SAFE_INTEGER)
+            var clamped_mult = DBTools.Utils.Clamp(multiplier, 1, Number.MAX_SAFE_INTEGER)
+            var clamped_cost = DBTools.Utils.Clamp(base_cost, 1, Number.MAX_SAFE_INTEGER)
+            this.enabled = enabled
+            this.min_val = clamped_minval
+            this.multiplier = clamped_mult
+            this.base_cost = clamped_cost
+            return true
+        } else {
+            var err_header = `Error`;
+            var composed_msg;
+            var err_count = 0;
+            var error_array = [];
+            var invalid_state = `Invalid enabled state: `
+            var invalid_minval = `Invalid min_val value: `
+            var invalid_mult = `Invalid multiplier value: `
+            var invalid_cost = `Invalid base_cost value: `
+            if (!valid_enabled) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
+                error_array.push(`${invalid_state}${enabled}`)
+            }
+            if(!valid_min_val){
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_minval}${min_val}`
+                error_array.push(`${invalid_minval}${min_val}`)
+            }
+            if (!valid_multiplier) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_mult}${multiplier}`
+                error_array.push(`${invalid_mult}${multiplier}`)
+            }
+            if (!valid_base_cost) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_cost}${base_cost}`
+                error_array.push(`${invalid_cost}${base_cost}`)
+            }
+            if (err_count > 1) {
+                err_header = `${err_header}s`
+            }
+            composed_msg = `${err_header}${composed_msg}`
+            DBTools.Utils.messages.errormsg(`AutoUnicorn.load_data`, error_array)
+            console.log(composed_msg)
+            return false
+        }
+    },
 }
 
 DBTools.AutoScience = {
@@ -997,6 +1190,37 @@ DBTools.AutoScience = {
     run: function (forced) {
         if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
             this.enabled = false
+        }
+    },
+
+    /**
+     * @param {boolean} enabled 
+     * @returns {boolean}
+     */
+    load_data : function(enabled){
+        var valid_enabled = DBTools.Utils.BoolCheck(enabled,true,false)
+        var valid_inputs = (valid_enabled)
+        if(valid_inputs){
+            this.enabled = enabled
+            return true
+        }else{
+            var err_header = `Error`;
+            var composed_msg;
+            var err_count = 0;
+            var error_array = [];
+            var invalid_state = `Invalid enabled state: `
+            if (!valid_enabled) {
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
+                error_array.push(`${invalid_state}${enabled}`)
+            }
+            if (err_count > 1) {
+                err_header = `${err_header}s`
+            }
+            composed_msg = `${err_header}${composed_msg}`
+            DBTools.Utils.messages.errormsg(`AutoScience.load_data`, error_array)
+            console.log(composed_msg)
+            return false
         }
     },
 }
@@ -1052,10 +1276,10 @@ DBTools.AutoHunt = {
     },
 
     /**
-     * 
-     * @param {*} enabled 
-     * @param {*} cost 
-     * @param {*} multiplier 
+     * @param {boolean} enabled 
+     * @param {integer} cost 
+     * @param {integer} multiplier
+     * @returns {boolean}
      */
     load_data: function(enabled,cost,multiplier){
         var valid_enabled = DBTools.Utils.BoolCheck(enabled,true,false)
@@ -1074,26 +1298,32 @@ DBTools.AutoHunt = {
             var err_header = `Error`;
             var composed_msg;
             var err_count = 0;
+            var error_array = [];
             var invalid_state = `Invalid enabled state: `
             var invalid_cost = `Invalid cost value: `
             var invalid_mult = `Invalid multiplier value: `
             if(!valid_enabled){
                 err_count += 1
                 composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
+                error_array.push(`${invalid_state}${enabled}`)
             }
             if(!valid_cost){
                 err_count += 1
                 composed_msg = `${composed_msg}\n${invalid_cost}${cost}`
+                error_array.push(`${invalid_cost}${cost}`)
             }
             if(!valid_multiplier){
                 err_count += 1
                 composed_msg = `${composed_msg}\n${invalid_mult}${multiplier}`
+                error_array.push(`${invalid_mult}${multiplier}`)
             }
             if(err_count > 1){
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
+            DBTools.Utils.messages.errormsg(`AutoCrafter.load_data`,error_array)
             console.log(composed_msg)
+            return false
         }
     },
 }
