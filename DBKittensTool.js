@@ -895,7 +895,21 @@ DBTools.AutoCrafter = {
                         console.log(`Warning: Saved settings for ${name} are invalid.`)
                     }
                     saved = prereqs[name]
-                    var valid_prereq = (DBTools.Utils.TypeCheck(saved.ingredients, 'array'))
+                    var valid_prereq = (DBTools.Utils.TypeCheck(saved.ingredients, 'array') && DBTools.Utils.BoolCheck(saved.requires_positive,true,false))
+                    if(valid_prereq){
+                        for(var subindex = 0; subindex < saved.ingredients.length; subindex++){
+                            var sameName = ( saved.ingredients[subindex].name == this.prereqs[name].ingredients[subindex].name )
+                            var sameCost = ( saved.ingredients[subindex].cost == this.prereqs[name].ingredients[subindex].cost )
+                            if(sameName && sameCost){
+                                this.prereqs[name].ingredients[subindex].min_val = DBTools.Utils.Clamp(saved.ingredients[subindex].min_val, -1, Number.MAX_SAFE_INTEGER)
+                            }else{
+                                console.log(`Warning: Saved ingredients for ${name} don't match reference.`)
+                            }
+                        }
+                        this.prereqs[name].requires_positive = saved.requires_positive
+                    }else{
+                        console.log(`Warning: Saved prereqs for ${name} are invalid.`)
+                    }
                 }
             }
             //this.prereqs = prereqs
