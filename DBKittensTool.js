@@ -490,8 +490,8 @@ DBTools.AutoCrafter = {
         ship:       { enabled: false,   multiplier: 1 },
         slab:       { enabled: true,    multiplier: 10 },
         plate:      { enabled: false,   multiplier: 1 },
-        steel:      { enabled: true,    multiplier: 1 },
-        gear:       { enabled: true,    multiplier: 1 },
+        steel:      { enabled: true,    multiplier: 10 },
+        gear:       { enabled: true,    multiplier: 5 },
         alloy:      { enabled: true,    multiplier: 1 },
         megalith:   { enabled: false,   multiplier: 1 },
         parchment:  { enabled: true,    multiplier: 50 },
@@ -708,8 +708,8 @@ DBTools.AutoCrafter = {
      * @param {integer} new_multiplier
      * @returns {integer}
      */
-    update_multiplier : function(resource, new_multiplier){
-        if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) { return false }
+    set_mult : function(resource, new_multiplier){
+        if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) { return 0 }
         new_multiplier = Math.max(DBTools.Utils.IntCheck(new_multiplier),1)
         DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.settings[resource].multiplier, new_multiplier)
         this.settings[resource].multiplier = new_multiplier
