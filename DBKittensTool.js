@@ -1,10 +1,32 @@
 var DBTools = new Object
+
+/**
+ * @type {boolean}
+ */
 DBTools.Halt = true
+
+/**
+ * @type {integer}
+ */
 DBTools.GlobalTimer = 1000
+
+/**
+ * @type {boolean}
+ */
 DBTools.Debug = false
+
+/**
+ * @type {integer}
+ */
 DBTools.Precision = 3
+/**
+ * @type {boolean}
+ */
 DBTools.Initiated = false
 
+/**
+* @returns {void}
+*/
 DBTools.Init = function(){
     DBTools.Utils.resource_init()
     DBTools.Utils.tab_init()
@@ -12,6 +34,12 @@ DBTools.Init = function(){
 }
 
 DBTools.Utils = {
+    /**
+    * @param {*} input_value
+    * @param {boolean} strict
+    * @param {*} return_value
+    * @returns {*}
+    */
     NullCheck : function(input_value,strict,return_value){
         
         if(null === strict || undefined === strict){strict = false}
@@ -27,6 +55,12 @@ DBTools.Utils = {
         }
     },
 
+    /**
+    * @param {*} input_value
+    * @param {boolean} strict
+    * @param {boolean} return_value
+    * @returns {boolean}
+    */
     BoolCheck : function(input_value,strict,return_value){
         //console.log(`BoolCheck (PRE): ${input_value}, ${strict}, ${return_value}`)
 
@@ -54,6 +88,13 @@ DBTools.Utils = {
         else{return return_value}
     },
 
+    /**
+    * @param {*} input_value
+    * @param {boolean} strict
+    * @param {number} return_value
+    * @param {boolean} self_call
+    * @returns {number}
+    */
     NumCheck : function(input_value,strict,return_value,self_call){
         self_call = this.NullCheck(self_call,false,false)
         strict = this.BoolCheck(strict,false,false)
@@ -72,11 +113,21 @@ DBTools.Utils = {
         else{return return_value}
     },
 
+    /**
+    * @param {*} input_value
+    * @param {integer} return_value
+    * @returns {integer}
+    */
     IntCheck : function(input_value,return_value){
         return_value = this.NumCheck(return_value,false,0)
         return parseInt(this.NumCheck(input_value,false,return_value))
     },
 
+    /**
+    * @param {*} input_value
+    * @param {string} return_value
+    * @returns {string}
+    */
     StrCheck : function(input_value,return_value){
         return_value = this.NullCheck(return_value,false,"")
         input_value = this.NullCheck(input_value,false,return_value.toString())
@@ -84,11 +135,22 @@ DBTools.Utils = {
         else{return input_value.toString()}
     },
 
+    /**
+    * @param {*} input_value
+    * @param {array} return_value
+    * @returns {array}
+    */
     ArrCheck : function(input_value,return_value){
         return_value = this.NullCheck(return_value,false,[])
         if(Array.isArray(this.NullCheck(input_value,false,return_value))){return input_value}else{return return_value}
     },
 
+    /**
+    * @param {*} input_value
+    * @param {number} min_value
+    * @param {number} max_value
+    * @returns {number}
+    */
     Clamp : function(input_value,min_value,max_value){
         min_value = this.NumCheck(min_value,false,0)
         max_value = this.NumCheck(max_value,false,1)
@@ -157,6 +219,9 @@ DBTools.Utils = {
         "megalith": 57,
     },
 
+    /**
+    *  @return {void}
+    */
     resource_init: function () {
         for (var index = 0; index < game.resPool.resources.length; index++) {
             try {
@@ -170,31 +235,90 @@ DBTools.Utils = {
     },
     
     messages : {
-        wrapper : function(message){
+        /**
+        * @param string message
+        * @param string sender
+        */
+        wrapper : function(message,sender){
+            sender = DBTools.Utils.StrCheck(sender,"DBTools")
             game.msg(`${message}`,null,null,true)
-            game.msg(`DBTools ${DBTools.Utils.TimeStamp()}`, null, null, null)
+            game.msg(`${DBTools.Utils.TimeStamp()} ${sender}`, null, null, null)
         },
+
+        /**
+        * @param string what_value
+        * @param any from_value
+        * @param any to_value
+        */
         toggled : function(what_value,from_value,to_value){
            this.wrapper(`Toggled ${what_value} from ${from_value} to ${to_value}.`)
         },
+
+        /**
+        * @param string what_value
+        * @param any to_value
+        */
         set_value: function (what_value, to_value){
             this.wrapper(`Set ${what_value} to ${to_value}.`)
         },
+
+        /**
+        * @param string what_value
+        * @param any from_value
+        * @param any to_value
+        */
         changed_value: function (what_value, from_value, to_value){
             this.wrapper(`Changed ${what_value} from ${from_value} to ${to_value}.`)
         },
+
+        /**
+        * @param string what_value
+        * @param string error_message
+        */
         error: function(what_value, error_message){
             game.msg(`${what_value}: ${error_message}`,null, null, true)
-            game.msg(`DBTools - ERROR ${DBTools.Utils.TimeStamp()}`,"important",null,null)
+            game.msg(`${DBTools.Utils.TimeStamp()} DBTools - ERROR`,"DBTools.Error","DBTools.Error",null)
+        },
+
+        /**
+        * @param string what_value
+        * @param string info_message
+        */
+        info : function(what_value, info_message){
+            this.wrapper(info_message,what_value)
+        },
+        
+        /**
+        * @param string input_name
+        * @param bool input_enabled
+        * @param integer input_multiplier 
+        */
+        autocrafter_settings: function(input_name,input_enabled,input_multiplier){
+            game.msg(`${input_multiplier}`, "DBTools.AutoCrafter", "item_settings", true)
+            game.msg(`${input_enabled}`, "DBTools.AutoCrafter", "item_settings", true)
+            game.msg(`${input_name}`, "DBTools.AutoCrafter", "item_settings", true)
+            game.msg(`${DBTools.Utils.TimeStamp()} AutoCrafter - Settings`, "DBTools.AutoCrafter", "item_settings", null)
         },
     },
 
-    AddZero: function(obj){
-        var f_obj = ""
-        if (parseInt(obj) < 10) { f_obj = `0${obj.toString()}`; return f_obj; }
-        else { return obj };
+    /**
+     * @param {integer, string} input_integer 
+     * @returns {string}
+     */
+    AddZero: function(input_integer){
+        input_integer = this.NumCheck(input_integer,false,-1)
+        if(input_integer == -1){
+            return null
+        }else{
+            if (parseInt(input_integer) < 10) { return `0${input_integer.toString()}`}
+            else { return input_integer };
+        }
     },
 
+    /**
+     * @param {integer} method 
+     * @returns {string}
+     */
     TimeStamp : function(method){
         method = this.IntCheck(method,0)
         var ct = new Date;
@@ -227,6 +351,9 @@ DBTools.Utils = {
         stats       : {},
     },
 
+    /**
+    *  @return {void}
+    */
     tab_init : function(){
         for(var index = 0; index < game.tabs.length; index++){
             this.tab_table[`${game.tabs[index].tabId.toLowerCase()}`] = game.tabs[index]
@@ -236,6 +363,7 @@ DBTools.Utils = {
     }
 
 }
+
 DBTools.Classes = {
     crafting_prereq : class {
         ingredients = []
@@ -264,17 +392,35 @@ DBTools.Classes = {
         }
     }
 }
+
+/**
+ * @param {boolean} forced_state
+ * @returns {boolean} 
+ */
 DBTools.Toggle = function(forced_state){
     if(this.Utils.BoolCheck(forced_state,true,false)){forced_state = !this.Halt}
     this.Utils.messages.toggled("Halt",this.Halt,forced_state)
     this.Halt = forced_state
     if(!this.Halt){DBTools.CoreLoop(this.GlobalTimer,this.Halt)}
+    return this.Halt
 }
+
+/**
+ * @param {integer} number
+ * @returns {integer} 
+ */
 DBTools.Rate = function(number){
     var new_value = DBTools.Utils.Clamp(DBTools.IntCheck(number, DBTools.GlobalTimer), 200, 86400)
     this.Utils.messages.changed_value("GlobalTimer",this.GlobalTimer,new_value)
     this.GlobalTimer = new_value
+    return this.GlobalTimer
 }
+
+/**
+ * @param {integer} timeout 
+ * @param {boolean} cancel 
+ * @returns {void}
+ */
 DBTools.CoreLoop = function(timeout, cancel){
     timeout = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(timeout,DBTools.GlobalTimer),200,86400)
     cancel = DBTools.Utils.BoolCheck(cancel,false,DBTools.Halt)
@@ -294,20 +440,41 @@ DBTools.CoreLoop = function(timeout, cancel){
         DBTools.Utils.messages.wrapper(`CoreLoop instructed to cancel.`)
     }
 }
+
+/**
+ * @returns {void}
+ */
 DBTools.Run  = function () { this.Toggle(false) }
+
+/**
+ * @returns {void}
+ */
 DBTools.Stop = function () { this.Utils.messages.set_value("Halt",true);this.Halt = true }
+
+/**
+ * @returns {void}
+ */
 DBTools.ToggleAll = function () {
     this.AutoCrafter.toggle()
     this.AutoReligion.toggle()
     this.AutoHunt.toggle()
     this.AutoUnicorn.toggle()
 }
+
 DBTools.AutoCrafter = {
+    /**
+     * @type {boolean}
+     */
     enabled : false,
+    
+    /**
+     * @returns {void}
+     */
     toggle : function(){
         DBTools.Utils.messages.toggled("AutoCrafter",this.enabled,!this.enabled)
         this.enabled = !this.enabled
     },
+
     settings: {
         wood:       { enabled: true,    multiplier: 100 },
         beam:       { enabled: true,    multiplier: 10 },
@@ -325,8 +492,14 @@ DBTools.AutoCrafter = {
         blueprint:  { enabled: true,    multiplier: 1 },
     },
 
+    /**
+     * @type {integer}
+     */
     generic_max_value_scale : 100,
 
+    /**
+     * @type {DBTools.Classes.crafting_prereq[]}
+     */
     prereqs : {
         //wood : new DBTools.Classes.prereqs([new DBTools.Classes.ingredient("catnip",50,-1)],true)
         wood: {
@@ -411,7 +584,11 @@ DBTools.AutoCrafter = {
     },
 
     
-
+    /**
+     * @param {string} resource 
+     * @param {integer} cost_multiplier 
+     * @returns {boolean}
+     */
     craft : function(resource, cost_multiplier){
         var can_craft = true
         
@@ -460,6 +637,10 @@ DBTools.AutoCrafter = {
         }
     },
 
+    /**
+     * @param {boolean} forced
+     * @returns {void}
+     */
     run : function(forced){
         if(this.enabled || DBTools.Utils.BoolCheck(forced,false,false)){
             var timestamp = DBTools.Utils.TimeStamp(2)
@@ -482,74 +663,174 @@ DBTools.AutoCrafter = {
         }
     },
 
+    /**
+     * @param {string} resource
+     * @param {boolean} forced_state
+     * @returns {boolean}
+     */
     toggle_resource : function(resource, forced_state){
         if (DBTools.Utils.NullCheck(resource,true) || DBTools.Utils.NullCheck(this.settings[resource],true)) { return false }
         forced_state = DBTools.Utils.BoolCheck(forced_state,false,!this.settings[resource].enabled)
         DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.setting[resource].enabled, forced_state)
         this.settings[resource].enabled = forced_state
+        return this.settings[resource].enabled
     },
 
+    /**
+     * @param {string} name
+     * @returns {string}
+     */
+    GetSettings : function(name){
+        name = DBTools.Utils.StrCheck(name,false)
+        if(DBTools.Utils.BoolCheck(settings[name],false,false)){
+            var tmp = this.settings[name];
+            var msg = (`Name: ${name}\nEnabled: ${tmp.enabled}\nMultiplier: ${tmp.multiplier}`)
+            DBTools.Utils.messages.autocrafter_settings(name,tmp.enabled,tmp.multiplier)
+            return (msg)
+        }
+    },
+
+    /**
+     * @param {string} resource
+     * @param {integer} new_multiplier
+     * @returns {integer}
+     */
     update_multiplier : function(resource, new_multiplier){
         if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) { return false }
         new_multiplier = Math.max(DBTools.Utils.IntCheck(new_multiplier),1)
         DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.settings[resource].multiplier, new_multiplier)
         this.settings[resource].multiplier = new_multiplier
+        return this.settings[resource].multiplier
     },
 
+    /**
+     * @param {integer} number
+     * @returns {integer}
+     */
     set_scale : function(number){
         number = Math.max(DBTools.Utils.NumCheck(number),1)
         this.generic_max_value_scale = number
         console.log(`[DBTools - Info]: generic_max_value_scale: ${this.generic_max_value_scale}`)
+        return this.generic_max_value_scale
     }
     
 
 }
+
 DBTools.AutoReligion = {
+    /**
+     * @type {boolean}
+     */
     enabled : false,
+
+    /**
+     * @returns {boolean}
+     */
     toggle : function(){
         DBTools.Utils.messages.toggled("AutoReligion", this.enabled, !this.enabled)
         this.enabled = !this.enabled
+        return this.enabled
     },
+
+    /**
+     * @type {number}
+     */
     percent : 0.95,
+
+    /**
+     * @param {number} number
+     * @returns {number}
+     */
     set_percent : function(number){
         var new_value = DBTools.Utils.Clamp(number, 0, 1)
         DBTools.Utils.messages.changed_value("AutoReligion.percent", this.percent, new_value)
         this.percent = new_value;
+        return this.percent
     },
 
+    /**
+     * @param {boolean} forced
+     * @returns {void} 
+     */
     run : function(forced){
         if(this.enabled || DBTools.Utils.BoolCheck(forced,false,false)){
             if (DBTools.Utils.resource_table["faith"].value >= ( DBTools.Utils.resource_table["faith"].maxValue * this.percent )){ game.religion.praise() }
         }
     }
 }
+
 DBTools.AutoUnicorn = {
+    /**
+     * @type {boolean}
+     */
     enabled: false,
+
+    /**
+     * @returns {boolean}
+     */
     toggle: function () {
         DBTools.Utils.messages.toggled("AutoUnicorn", this.enabled, !this.enabled)
         this.enabled = !this.enabled
+        return this.enabled
     },
+
+    /**
+     * @type {integer}
+     */
     min_val : 1e4,
+
+    /**
+     * @type {integer}
+     */
     multiplier : 1,
+
+    /**
+     * @type {integer}
+     */
     base_cost : 2500,
+
+    /**
+     * @param {integer} number 
+     * @returns {integer}
+     */
     set_min: function (number) {
         var new_value = DBTools.Utils.Clamp(number, 2500, Number.MAX_SAFE_INTEGER)
         DBTools.Utils.messages.changed_value("AutoUnicorn.min_val", this.min_val, new_value)
         this.min_val = new_value;
+        return this.min_val
     },
+
+    /**
+     * @param {integer} number 
+     * @returns {integer}
+     */
     set_mult: function (number) {
         var new_mult = Math.max(DBTools.Utils.IntCheck(number, 1), 1)
         DBTools.Utils.messages.changed_value("AutoUnicorn.multiplier", this.multiplier, new_mult)
         this.multiplier = new_mult
+        return this.multiplier
     },
+
+    /**
+     * @param {boolean} forced
+     * @returns {void}
+     */
     run: function (forced) {
         if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
             if (DBTools.Utils.resource_table["unicorns"].value >= (this.min_val + (this.base_cost * this.multiplier))) { this.click_hijack.domNode.click() }
         }
     },
+
+    /**
+     * @type {object}
+     */
     click_hijack : {
         domNode : { click : function(){DBTools.AutoUnicorn.init()} }
     },
+
+    /**
+     * @returns {void}
+     */
     init: function(){
         if(DBTools.Utils.NullCheck(game.religionTab.sacrificeBtn)){
             this.hijacker();
@@ -558,37 +839,82 @@ DBTools.AutoUnicorn = {
             setTimeout(this.hijacker,500)
         }
     },
+
+    /**
+     * @returns {void}
+     */
     hijacker : function(){
         this.click_hijack = Object.assign({}, game.religionTab.sacrificeBtn)
-
     }
 }
+
 DBTools.AutoScience = {
+    /**
+     * @type {boolean}
+     */
     enabled: false,
+
+    /**
+     * @returns {boolean}
+     */
     toggle: function () {
         DBTools.Utils.messages.toggled("AutoScience", this.enabled, !this.enabled)
         this.enabled = !this.enabled
+        return this.enabled
     },
+
+    /**
+     * @returns {void}
+     */
     run: function (forced) {
         if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
             this.enabled = false
         }
     },
 }
+
 DBTools.AutoHunt = {
+    /**
+     * @type {boolean}
+     */
     enabled : false,
+
+    /**
+     * @returns {boolean}
+     */
     toggle: function () {
         DBTools.Utils.messages.toggled("AutoHunt", this.enabled, !this.enabled)
         this.enabled = !this.enabled
+        return this.enabled
     },
+
+    /**
+     * @type {integer}
+     */
     cost: (100 - game.getEffect("huntCatpowerDiscount")),
+
+    /**
+     * @type {integer}
+     */
     multiplier : 5,
+
+    /**
+     * @param {integer} number
+     * @returns {integer}
+     */
     set_mult: function (number) {
         var new_mult = Math.max(DBTools.Utils.IntCheck(number, 1), 1)
         DBTools.Utils.messages.changed_value("AutoHunt.multiplier",this.multiplier,new_mult)
         this.multiplier = new_mult
+        return this.multiplier
     },
+
+
     // Had to manually remove resources because for some reason the game doesn't in the function??
+    /**
+     * @param {boolean} forced
+     * @returns {void}
+     */
     run: function (forced) {
         if (this.enabled || DBTools.Utils.BoolCheck(forced,false,false)) {
             var atLimit = (DBTools.Utils.resource_table["manpower"].value > (DBTools.Utils.resource_table["manpower"].maxValue - this.cost))
