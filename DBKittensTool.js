@@ -27,7 +27,7 @@ DBTools.Initiated = false
 /**
 * @returns {void}
 */
-DBTools.Init = function(){
+DBTools.Init = function () {
     DBTools.Utils.resource_init()
     DBTools.Utils.tab_init()
     DBTools.Initiated = true
@@ -40,18 +40,18 @@ DBTools.Utils = {
     * @param {*} return_value
     * @returns {*}
     */
-    NullCheck : function(input_value,strict,return_value){
-        
-        if(null === strict || undefined === strict){strict = false}
-        if(null === return_value || undefined === return_value){return_value = false}
+    NullCheck: function (input_value, strict, return_value) {
 
-        if(null === input_value || undefined === input_value){
-            if(strict){return true}
-            else{return return_value}
+        if (null === strict || undefined === strict) { strict = false }
+        if (null === return_value || undefined === return_value) { return_value = false }
+
+        if (null === input_value || undefined === input_value) {
+            if (strict) { return true }
+            else { return return_value }
         }
-        else{
-            if(strict){return false}
-            else{return input_value}
+        else {
+            if (strict) { return false }
+            else { return input_value }
         }
     },
 
@@ -61,31 +61,31 @@ DBTools.Utils = {
     * @param {boolean} return_value
     * @returns {boolean}
     */
-    BoolCheck : function(input_value,strict,return_value){
+    BoolCheck: function (input_value, strict, return_value) {
         //console.log(`BoolCheck (PRE): ${input_value}, ${strict}, ${return_value}`)
 
-        input_value = this.NullCheck(input_value,false,return_value)
-        return_value = this.NullCheck(return_value,false,false)
-        strict = this.NullCheck(strict,false,false)
+        input_value = this.NullCheck(input_value, false, return_value)
+        return_value = this.NullCheck(return_value, false, false)
+        strict = this.NullCheck(strict, false, false)
 
         //console.log(`BoolCheck (POST): ${input_value}, ${strict}, ${return_value}`)
 
-        if(typeof(input_value) == 'boolean'){
-            if(strict){return true}
-            else{return input_value}
-        }
-        
-        else if(typeof(input_value) == 'string'){
-            if(input_value == "true"){return true}
-            else{return false}
-        }
-        
-        else if (typeof (input_value) == 'number'){
-            if(input_value >= 1){return true}
-            else{return false}
+        if (typeof (input_value) == 'boolean') {
+            if (strict) { return true }
+            else { return input_value }
         }
 
-        else{return return_value}
+        else if (typeof (input_value) == 'string') {
+            if (input_value == "true") { return true }
+            else { return false }
+        }
+
+        else if (typeof (input_value) == 'number') {
+            if (input_value >= 1) { return true }
+            else { return false }
+        }
+
+        else { return return_value }
     },
 
     /**
@@ -95,22 +95,22 @@ DBTools.Utils = {
     * @param {boolean} self_call
     * @returns {number}
     */
-    NumCheck : function(input_value,strict,return_value,self_call){
-        self_call = this.NullCheck(self_call,false,false)
-        strict = this.BoolCheck(strict,false,false)
+    NumCheck: function (input_value, strict, return_value, self_call) {
+        self_call = this.NullCheck(self_call, false, false)
+        strict = this.BoolCheck(strict, false, false)
 
-        if(!self_call){
-            return_value = this.NumCheck(return_value,true,0,true)
-        }else{
+        if (!self_call) {
+            return_value = this.NumCheck(return_value, true, 0, true)
+        } else {
             return_value = 0
         }
-        input_value = this.NullCheck(input_value,false,return_value)
+        input_value = this.NullCheck(input_value, false, return_value)
 
-        if(typeof(input_value == 'number')){return input_value}
-        else if(!strict && typeof(input_value) == 'string' && !self_call){
+        if (typeof (input_value == 'number')) { return input_value }
+        else if (!strict && typeof (input_value) == 'string' && !self_call) {
             return this.NumCheck(parseFloat(input_value), true, return_value, true)
         }
-        else{return return_value}
+        else { return return_value }
     },
 
     /**
@@ -118,9 +118,9 @@ DBTools.Utils = {
     * @param {integer} return_value
     * @returns {integer}
     */
-    IntCheck : function(input_value,return_value){
-        return_value = this.NumCheck(return_value,false,0)
-        return parseInt(this.NumCheck(input_value,false,return_value))
+    IntCheck: function (input_value, return_value) {
+        return_value = this.NumCheck(return_value, false, 0)
+        return parseInt(this.NumCheck(input_value, false, return_value))
     },
 
     /**
@@ -128,11 +128,11 @@ DBTools.Utils = {
     * @param {string} return_value
     * @returns {string}
     */
-    StrCheck : function(input_value,return_value){
-        return_value = this.NullCheck(return_value,false,"")
-        input_value = this.NullCheck(input_value,false,return_value.toString())
-        if(typeof(input_value == 'string')){return input_value}
-        else{return input_value.toString()}
+    StrCheck: function (input_value, return_value) {
+        return_value = this.NullCheck(return_value, false, "")
+        input_value = this.NullCheck(input_value, false, return_value.toString())
+        if (typeof (input_value == 'string')) { return input_value }
+        else { return input_value.toString() }
     },
 
     /**
@@ -140,9 +140,9 @@ DBTools.Utils = {
     * @param {array} return_value
     * @returns {array}
     */
-    ArrCheck : function(input_value,return_value){
-        return_value = this.NullCheck(return_value,false,[])
-        if(Array.isArray(this.NullCheck(input_value,false,return_value))){return input_value}else{return return_value}
+    ArrCheck: function (input_value, return_value) {
+        return_value = this.NullCheck(return_value, false, [])
+        if (Array.isArray(this.NullCheck(input_value, false, return_value))) { return input_value } else { return return_value }
     },
 
     /**
@@ -151,19 +151,32 @@ DBTools.Utils = {
     * @param {number} max_value
     * @returns {number}
     */
-    Clamp : function(input_value,min_value,max_value){
-        min_value = this.NumCheck(min_value,false,0)
-        max_value = this.NumCheck(max_value,false,1)
+    Clamp: function (input_value, min_value, max_value) {
+        min_value = this.NumCheck(min_value, false, 0)
+        max_value = this.NumCheck(max_value, false, 1)
         input_value = this.NumCheck(input_value, true, max_value)
-        return Math.max(Math.min(input_value,max_value),min_value)
+        return Math.max(Math.min(input_value, max_value), min_value)
     },
 
     /**
      * @param {*} input_value
      * @returns {boolean}
      */
-    HasValue: function(input_value){
-        if(this.NullCheck(input_value,false,false)){return true}else{return false}
+    HasValue: function (input_value) {
+        if (this.NullCheck(input_value, false, false)) { return true } else { return false }
+    },
+
+    /**
+     * @param {*} input_value 
+     * @param {string} desired_type 
+     * @returns {boolean}
+     */
+    TypeCheck: function(input_value,desired_type) {
+        if(this.HasValue(desired_type)){
+            return typeof(this.NullCheck(input_value) == desired_type)
+        }else{
+            return false
+        }
     },
 
     resource_table: {
@@ -236,20 +249,20 @@ DBTools.Utils = {
                 this.resource_table[game.resPool.resources[index].name] = game.resPool.resources[index]
             }
             catch {
-                this.messages.error(`Utils.resource_inint`,`${ game.resPool.resources[index].name } doesn't exist in resource table.`)
+                this.messages.error(`Utils.resource_inint`, `${game.resPool.resources[index].name} doesn't exist in resource table.`)
             }
         }
         return true
     },
-    
-    messages : {
+
+    messages: {
         /**
         * @param {string} message
         * @param {string} sender
         */
-        wrapper : function(message,sender){
-            sender = DBTools.Utils.StrCheck(sender,"DBTools")
-            game.msg(`${message}`,null,null,true)
+        wrapper: function (message, sender) {
+            sender = DBTools.Utils.StrCheck(sender, "DBTools")
+            game.msg(`${message}`, null, null, true)
             game.msg(`${DBTools.Utils.TimeStamp()} ${sender}`, null, null, null)
         },
 
@@ -258,15 +271,15 @@ DBTools.Utils = {
         * @param {*} from_value
         * @param {*} to_value
         */
-        toggled : function(what_value,from_value,to_value){
-           this.wrapper(`Toggled ${what_value} from ${from_value} to ${to_value}.`)
+        toggled: function (what_value, from_value, to_value) {
+            this.wrapper(`Toggled ${what_value} from ${from_value} to ${to_value}.`)
         },
 
         /**
         * @param {string} what_value
         * @param {any} to_value
         */
-        set_value: function (what_value, to_value){
+        set_value: function (what_value, to_value) {
             this.wrapper(`Set ${what_value} to ${to_value}.`)
         },
 
@@ -275,33 +288,40 @@ DBTools.Utils = {
         * @param {*} from_value
         * @param {*} to_value
         */
-        changed_value: function (what_value, from_value, to_value){
+        changed_value: function (what_value, from_value, to_value) {
             this.wrapper(`Changed ${what_value} from ${from_value} to ${to_value}.`)
         },
 
         /**
-        * @param {string} sender
-        * @param {string} error_message
-        */
-        errormsg: function(sender, error_message){
-            game.msg(`${error_message}`,null, null, true)
-            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - ERROR`,"DBTools.Error","DBTools.Error",null)
+         * @param {string} sender String describing where error was sent from
+         * @param {string[]} error_message Array of strings describing errors
+         * @param {string} error_message Single string describing error
+         */
+        errormsg: function (sender, error_message) {
+            if(DBTools.Utils.TypeCheck(error_message)){
+                for(var index = 0; index < error_message.length; index++){
+                    game.msg(`${error_message[index]}`,`DBTools.ErrorDesc`, `DBTools.Error`, true)
+                }
+            }else{
+                game.msg(`${error_message}`, `DBTools.ErrorDesc`, `DBTools.Error`, true)
+            }
+            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - ERROR`, "DBTools.Error", "DBTools.Error", null)
         },
 
         /**
         * @param {string} what_value
         * @param {string} info_message
         */
-        infomsg : function(what_value, info_message){
-            this.wrapper(info_message,what_value)
+        infomsg: function (what_value, info_message) {
+            this.wrapper(info_message, what_value)
         },
-        
+
         /**
         * @param {string} input_name
         * @param {bool} input_enabled
         * @param {integer} input_multiplier 
         */
-        autocrafter_settings: function(input_name,input_enabled,input_multiplier){
+        autocrafter_settings: function (input_name, input_enabled, input_multiplier) {
             game.msg(`Multiplier: ${input_multiplier}`, "DBTools.AutoCrafter", "item_settings", true)
             game.msg(`Enabled: ${input_enabled}`, "DBTools.AutoCrafter", "item_settings", true)
             game.msg(`Name: ${input_name}`, "DBTools.AutoCrafter", "item_settings", true)
@@ -313,12 +333,12 @@ DBTools.Utils = {
      * @param {integer, string} input_integer 
      * @returns {string}
      */
-    AddZero: function(input_integer){
-        input_integer = this.NumCheck(input_integer,false,-1)
-        if(input_integer == -1){
+    AddZero: function (input_integer) {
+        input_integer = this.NumCheck(input_integer, false, -1)
+        if (input_integer == -1) {
             return null
-        }else{
-            if (parseInt(input_integer) < 10) { return `0${input_integer.toString()}`}
+        } else {
+            if (parseInt(input_integer) < 10) { return `0${input_integer.toString()}` }
             else { return input_integer };
         }
     },
@@ -327,8 +347,8 @@ DBTools.Utils = {
      * @param {integer} method 
      * @returns {string}
      */
-    TimeStamp : function(method){
-        method = this.IntCheck(method,0)
+    TimeStamp: function (method) {
+        method = this.IntCheck(method, 0)
         var ct = new Date;
         var fts_date = `${ct.getFullYear().toString()} - ${this.AddZero(ct.getMonth() + 1).toString()} - ${this.AddZero(ct.getDate()).toString()}`
         var fts_time = `${this.AddZero(ct.getHours()).toString()}:${this.AddZero(ct.getMinutes()).toString()}:${this.AddZero(ct.getSeconds()).toString()}`;
@@ -345,54 +365,144 @@ DBTools.Utils = {
         }
     },
 
-    tab_table : {
-        bonfire     : {},
-        village     : {},
-        science     : {},
-        workshop    : {},
-        trade       : {},
-        religion    : {},
-        space       : {},
-        time        : {},
-        challenges  : {},
+    tab_table: {
+        bonfire: {},
+        village: {},
+        science: {},
+        workshop: {},
+        trade: {},
+        religion: {},
+        space: {},
+        time: {},
+        challenges: {},
         achievements: {},
-        stats       : {},
+        stats: {},
     },
 
     /**
     *  @return {void}
     */
-    tab_init : function(){
-        for(var index = 0; index < game.tabs.length; index++){
+    tab_init: function () {
+        for (var index = 0; index < game.tabs.length; index++) {
             this.tab_table[`${game.tabs[index].tabId.toLowerCase()}`] = game.tabs[index]
-            if(game.tabs[index].visible){game.tabs[index].domNode.click()}
+            if (game.tabs[index].visible) { game.tabs[index].domNode.click() }
         }
         game.tabs[0].domNode.click()
-    }
+    },
 
+
+    load_save: {
+
+        /**
+         * @param {string} save_id
+         * @returns {void}
+        */
+        save_settings: function (save_id) {
+            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            var savedata = {
+                global_data: {
+                    GlobalTimer: DBTools.GlobalTimer,
+                    Precision: DBTools.Precision,
+                    Halt: DBTools.Halt,
+                    Debug: DBTools.Debug,
+                },
+                autocrafter_data: {
+                    enabled: DBTools.AutoCrafter.enabled,
+                    scale: DBTools.AutoCrafter.generic_max_value_scale,
+                    settings: DBTools.AutoCrafter.settings,
+                    prereqs: DBTools.AutoCrafter.prereqs,
+                },
+                autoreligion: {
+                    enabled: DBTools.AutoReligion.enabled,
+                    percent: DBTools.AutoReligion.percent,
+                },
+                autounicorn: {
+                    enabled: DBTools.AutoUnicorn.enabled,
+                    min_val: DBTools.AutoUnicorn.min_val,
+                    multiplier: DBTools.AutoUnicorn.multiplier,
+                    base_cost: DBTools.AutoUnicorn.base_cost,
+                },
+                autoscience: {
+                    enabled: DBTools.AutoScience.enabled
+                },
+                autohunt: {
+                    enabled: DBTools.AutoHunt.enabled,
+                    cost: DBTools.AutoHunt.cost,
+                    multiplier: DBTools.AutoHunt.multiplier,
+                },
+            }
+            var encoded_data = btoa(JSON.stringify(savedata));
+
+            if (this.check_for_saved_settings(save_id)) {
+                console.log(`Warning: ${save_id} already exists, overwriting.`)
+            }
+
+            localStorage.setItem(save_id, encoded_data)
+            return
+        },
+
+        /**
+         * @param {string} save_id
+         * @returns {boolean}
+         */
+        check_for_saved_settings: function (save_id) {
+            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            if (DBTools.Utils.HasValue(localStorage.getItem(save_id))) {
+                return true
+            } else {
+                return false
+            }
+        },
+
+        /**
+         * @param {string} save_id
+         * @returns {void}
+         */
+        load_saved_settings: function (save_id) {
+            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            var encoded_data;
+            var savedata;
+            if(this.check_for_saved_settings(save_id)){
+                console.log(`Loading DBTools data from ${save_id}`)
+                encoded_data = localStorage.getItem(save_id)
+                savedata = JSON.parse(atob(encoded_data))
+                // AutoCrafter
+                DBTools.AutoCrafter.enabled = savedata.autocrafter.enabled
+                
+            }
+        },
+
+        /**
+         * @param {string} save_id
+         * @returns {void}
+         */
+        delete_saved_settings: function (save_id) {
+            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+        },
+    }
 }
 
 DBTools.Classes = {
-    crafting_prereq : class {
+    crafting_prereq: class {
         ingredients = []
-        requires_positive=false
+        requires_positive = false
 
-        constructor(input_array, input_bool){
+        constructor(input_array, input_bool) {
             input_array = DBTools.ArrCheck(input_array)
-            input_bool = DBTools.BoolCheck(input_bool,false,false)
+            input_bool = DBTools.BoolCheck(input_bool, false, false)
             this.ingredients = input_array
             this.requires_positive = input_bool
         }
     },
-    ingredient : class {
+    ingredient: class {
         name = ""
         cost = 1
         min_val = -1
 
-        constructor(input_string, input_cost, input_minimum){
-            input_string = DBTools.StrCheck(input_string,"")
-            input_cost = DBTools.Clamp(DBTools.IntCheck(input_cost,1),1,Number.MAX_SAFE_INTEGER)
-            input_minimum = DBTools.Clamp(DBTools.IntCheck(input_minimum,-1),-1,Number.MAX_SAFE_INTEGER)
+        constructor(input_string, input_cost, input_minimum) {
+            input_string = DBTools.StrCheck(input_string, "")
+            input_cost = DBTools.Clamp(DBTools.IntCheck(input_cost, 1), 1, Number.MAX_SAFE_INTEGER)
+            input_minimum = DBTools.Clamp(DBTools.IntCheck(input_minimum, -1), -1, Number.MAX_SAFE_INTEGER)
 
             this.name = input_string
             this.cost = input_cost
@@ -405,11 +515,11 @@ DBTools.Classes = {
  * @param {boolean} forced_state
  * @returns {boolean} 
  */
-DBTools.Toggle = function(forced_state){
-    if(this.Utils.BoolCheck(forced_state,true,false)){forced_state = !this.Halt}
-    this.Utils.messages.toggled("Halt",this.Halt,forced_state)
+DBTools.Toggle = function (forced_state) {
+    if (this.Utils.BoolCheck(forced_state, true, false)) { forced_state = !this.Halt }
+    this.Utils.messages.toggled("Halt", this.Halt, forced_state)
     this.Halt = forced_state
-    if(!this.Halt){DBTools.CoreLoop(this.GlobalTimer,this.Halt)}
+    if (!this.Halt) { DBTools.CoreLoop(this.GlobalTimer, this.Halt) }
     return this.Halt
 }
 
@@ -417,9 +527,9 @@ DBTools.Toggle = function(forced_state){
  * @param {integer} number
  * @returns {integer} 
  */
-DBTools.Rate = function(number){
+DBTools.Rate = function (number) {
     var new_value = DBTools.Utils.Clamp(DBTools.IntCheck(number, DBTools.GlobalTimer), 200, 86400)
-    this.Utils.messages.changed_value("GlobalTimer",this.GlobalTimer,new_value)
+    this.Utils.messages.changed_value("GlobalTimer", this.GlobalTimer, new_value)
     this.GlobalTimer = new_value
     return this.GlobalTimer
 }
@@ -429,10 +539,10 @@ DBTools.Rate = function(number){
  * @param {boolean} cancel 
  * @returns {void}
  */
-DBTools.CoreLoop = function(timeout, cancel){
-    timeout = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(timeout,DBTools.GlobalTimer),200,86400)
-    cancel = DBTools.Utils.BoolCheck(cancel,false,DBTools.Halt)
-    if(!DBTools.Initiated){DBTools.Init()}
+DBTools.CoreLoop = function (timeout, cancel) {
+    timeout = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(timeout, DBTools.GlobalTimer), 200, 86400)
+    cancel = DBTools.Utils.BoolCheck(cancel, false, DBTools.Halt)
+    if (!DBTools.Initiated) { DBTools.Init() }
 
     /* Runners */
     DBTools.AutoCrafter.run()
@@ -442,9 +552,9 @@ DBTools.CoreLoop = function(timeout, cancel){
     DBTools.AutoHunt.run()
 
     /* Self-Call */
-    if(!cancel){
-        setTimeout(function(){DBTools.CoreLoop(timeout,DBTools.Halt)},timeout)
-    }else{
+    if (!cancel) {
+        setTimeout(function () { DBTools.CoreLoop(timeout, DBTools.Halt) }, timeout)
+    } else {
         DBTools.Utils.messages.wrapper(`CoreLoop instructed to cancel.`)
     }
 }
@@ -452,12 +562,12 @@ DBTools.CoreLoop = function(timeout, cancel){
 /**
  * @returns {void}
  */
-DBTools.Run  = function () { this.Toggle(false) }
+DBTools.Run = function () { this.Toggle(false) }
 
 /**
  * @returns {void}
  */
-DBTools.Stop = function () { this.Utils.messages.set_value("Halt",true);this.Halt = true }
+DBTools.Stop = function () { this.Utils.messages.set_value("Halt", true); this.Halt = true }
 
 /**
  * @returns {void}
@@ -473,42 +583,42 @@ DBTools.AutoCrafter = {
     /**
      * @type {boolean}
      */
-    enabled : false,
-    
+    enabled: false,
+
     /**
      * @returns {void}
      */
-    toggle : function(){
-        DBTools.Utils.messages.toggled("AutoCrafter",this.enabled,!this.enabled)
+    toggle: function () {
+        DBTools.Utils.messages.toggled("AutoCrafter", this.enabled, !this.enabled)
         this.enabled = !this.enabled
     },
 
     settings: {
-        wood:       { enabled: true,    multiplier: 100 },
-        beam:       { enabled: true,    multiplier: 10 },
-        scaffold:   { enabled: false,   multiplier: 1 },
-        ship:       { enabled: false,   multiplier: 1 },
-        slab:       { enabled: true,    multiplier: 10 },
-        plate:      { enabled: false,   multiplier: 1 },
-        steel:      { enabled: true,    multiplier: 10 },
-        gear:       { enabled: true,    multiplier: 5 },
-        alloy:      { enabled: true,    multiplier: 1 },
-        megalith:   { enabled: false,   multiplier: 1 },
-        parchment:  { enabled: true,    multiplier: 50 },
-        manuscript: { enabled: false,   multiplier: 1 },
-        compendium: { enabled: true,    multiplier: 1 },
-        blueprint:  { enabled: true,    multiplier: 1 },
+        wood: { enabled: true, multiplier: 100 },
+        beam: { enabled: true, multiplier: 10 },
+        scaffold: { enabled: false, multiplier: 1 },
+        ship: { enabled: false, multiplier: 1 },
+        slab: { enabled: true, multiplier: 10 },
+        plate: { enabled: false, multiplier: 1 },
+        steel: { enabled: true, multiplier: 10 },
+        gear: { enabled: true, multiplier: 5 },
+        alloy: { enabled: true, multiplier: 1 },
+        megalith: { enabled: false, multiplier: 1 },
+        parchment: { enabled: true, multiplier: 50 },
+        manuscript: { enabled: false, multiplier: 1 },
+        compendium: { enabled: true, multiplier: 1 },
+        blueprint: { enabled: true, multiplier: 1 },
     },
 
     /**
      * @type {integer}
      */
-    generic_max_value_scale : 100,
+    generic_max_value_scale: 100,
 
     /**
      * @type {DBTools.Classes.crafting_prereq[]}
      */
-    prereqs : {
+    prereqs: {
         //wood : new DBTools.Classes.prereqs([new DBTools.Classes.ingredient("catnip",50,-1)],true)
         wood: {
             ingredients: [{ name: "catnip", cost: 50, min_val: -1 }],
@@ -591,56 +701,56 @@ DBTools.AutoCrafter = {
         },
     },
 
-    
+
     /**
      * @param {string} resource 
      * @param {integer} cost_multiplier 
      * @returns {boolean}
      */
-    craft : function(resource, cost_multiplier){
+    craft: function (resource, cost_multiplier) {
         var can_craft = true
-        
+
         for (var index = 0; index < this.prereqs[resource].ingredients.length; index++) {
             var current_resource = Object.assign({}, DBTools.Utils.resource_table[this.prereqs[resource].ingredients[index].name])
             current_resource.calculated_maxValue = current_resource.maxValue
             current_resource.base_cost = this.prereqs[resource].ingredients[index].cost
-            current_resource.min_val = DBTools.Utils.IntCheck(this.prereqs[resource].ingredients[index].min_val,-1)
+            current_resource.min_val = DBTools.Utils.IntCheck(this.prereqs[resource].ingredients[index].min_val, -1)
             current_resource.calculated_cost = current_resource.base_cost * cost_multiplier
-            
-            if(current_resource.maxValue <= 0){
+
+            if (current_resource.maxValue <= 0) {
                 current_resource.calculated_maxValue = current_resource.calculated_cost * this.generic_max_value_scale
             }
 
             var at_cap = (current_resource.value > (current_resource.calculated_maxValue - current_resource.base_cost))
-            if (current_resource.min_val >= 1) { at_cap = (current_resource.value > current_resource.min_val)}
+            if (current_resource.min_val >= 1) { at_cap = (current_resource.value > current_resource.min_val) }
             var can_afford = (current_resource.value > current_resource.calculated_cost)
             var is_gaining = (current_resource.perTickCached > 0)
             var is_safe = !this.prereqs[resource].requires_positive
 
-            if(this.prereqs[resource].requires_positive){
-                if(is_gaining){is_safe = true}else{is_safe = false}
+            if (this.prereqs[resource].requires_positive) {
+                if (is_gaining) { is_safe = true } else { is_safe = false }
             }
 
-            if(DBTools.Debug){
+            if (DBTools.Debug) {
                 console.log(`${resource}: at_cap(${at_cap}) && can_afford(${can_afford})`)
                 console.log(`${resource}_mv[${current_resource.maxValue}]: ${current_resource.calculated_maxValue} = ${current_resource.calculated_cost} * ${this.generic_max_value_scale}`)
                 console.log(`Current Ingredient: ${current_resource.name}\n> Current Cost: ${current_resource.base_cost}\n> Craft Barrier: ${current_resource.calculated_maxValue}\n> Current Amount: ${current_resource.value}\n> Possible: ${can_afford}`)
             }
-            
-            
-            if (at_cap && can_afford){
+
+
+            if (at_cap && can_afford) {
                 can_craft = (can_craft && true);
-            }else{
+            } else {
                 can_craft = false
             }
         }
         //console.log(`Able to craft ${resource}: ${can_craft}`)
-        if(can_craft){
-            game.craft(resource,cost_multiplier)
+        if (can_craft) {
+            game.craft(resource, cost_multiplier)
             game.msg(`+${(cost_multiplier * (1 + game.getResCraftRatio(resource))).toFixed(DBTools.Precision)} ${resource}`, "workshopautomation", null, "craft")
             return true
             //game.msg($I("workshop.crafted.msg", [game.getDisplayValueExt(cost_multiplier * (1 + game.getResCraftRatio(resource))), resource]), null, "craft");
-        }else{
+        } else {
             return false
         }
     },
@@ -649,25 +759,25 @@ DBTools.AutoCrafter = {
      * @param {boolean} forced
      * @returns {void}
      */
-    run : function(forced){
-        if(this.enabled || DBTools.Utils.BoolCheck(forced,false,false)){
+    run: function (forced) {
+        if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
             var timestamp = DBTools.Utils.TimeStamp(2)
             var has_crafted = false
-            if (this.settings.wood.enabled)         { has_crafted = has_crafted || this.craft("wood", this.settings.wood.multiplier) }
-            if (this.settings.beam.enabled)         { has_crafted = has_crafted || this.craft("beam", this.settings.beam.multiplier) }
-            if (this.settings.scaffold.enabled)     { has_crafted = has_crafted || this.craft("scaffold", this.settings.scaffold.multiplier) }
-            if (this.settings.ship.enabled)         { has_crafted = has_crafted || this.craft("ship", this.settings.ship.multiplier) }
-            if (this.settings.slab.enabled)         { has_crafted = has_crafted || this.craft("slab", this.settings.slab.multiplier) }
-            if (this.settings.plate.enabled)        { has_crafted = has_crafted || this.craft("plate", this.settings.plate.multiplier) }
-            if (this.settings.steel.enabled)        { has_crafted = has_crafted || this.craft("steel", this.settings.steel.multiplier) }
-            if (this.settings.gear.enabled)         { has_crafted = has_crafted || this.craft("gear", this.settings.gear.multiplier) }
-            if (this.settings.alloy.enabled)        { has_crafted = has_crafted || this.craft("alloy", this.settings.alloy.multiplier) }
-            if (this.settings.megalith.enabled)     { has_crafted = has_crafted || this.craft("megalith", this.settings.megalith.multiplier) }
-            if (this.settings.parchment.enabled)    { has_crafted = has_crafted || this.craft("parchment", this.settings.parchment.multiplier) }
-            if (this.settings.manuscript.enabled)   { has_crafted = has_crafted || this.craft("manuscript", this.settings.manuscript.multiplier) }
-            if (this.settings.compendium.enabled)   { has_crafted = has_crafted || this.craft("compendium", this.settings.compendium.multiplier) }
-            if (this.settings.blueprint.enabled)    { has_crafted = has_crafted || this.craft("blueprint", this.settings.blueprint.multiplier) }
-            if(has_crafted){game.msg(`DBAutoCraft ${timestamp}`, "workshopautomation", null, null)}
+            if (this.settings.wood.enabled) { has_crafted = has_crafted || this.craft("wood", this.settings.wood.multiplier) }
+            if (this.settings.beam.enabled) { has_crafted = has_crafted || this.craft("beam", this.settings.beam.multiplier) }
+            if (this.settings.scaffold.enabled) { has_crafted = has_crafted || this.craft("scaffold", this.settings.scaffold.multiplier) }
+            if (this.settings.ship.enabled) { has_crafted = has_crafted || this.craft("ship", this.settings.ship.multiplier) }
+            if (this.settings.slab.enabled) { has_crafted = has_crafted || this.craft("slab", this.settings.slab.multiplier) }
+            if (this.settings.plate.enabled) { has_crafted = has_crafted || this.craft("plate", this.settings.plate.multiplier) }
+            if (this.settings.steel.enabled) { has_crafted = has_crafted || this.craft("steel", this.settings.steel.multiplier) }
+            if (this.settings.gear.enabled) { has_crafted = has_crafted || this.craft("gear", this.settings.gear.multiplier) }
+            if (this.settings.alloy.enabled) { has_crafted = has_crafted || this.craft("alloy", this.settings.alloy.multiplier) }
+            if (this.settings.megalith.enabled) { has_crafted = has_crafted || this.craft("megalith", this.settings.megalith.multiplier) }
+            if (this.settings.parchment.enabled) { has_crafted = has_crafted || this.craft("parchment", this.settings.parchment.multiplier) }
+            if (this.settings.manuscript.enabled) { has_crafted = has_crafted || this.craft("manuscript", this.settings.manuscript.multiplier) }
+            if (this.settings.compendium.enabled) { has_crafted = has_crafted || this.craft("compendium", this.settings.compendium.multiplier) }
+            if (this.settings.blueprint.enabled) { has_crafted = has_crafted || this.craft("blueprint", this.settings.blueprint.multiplier) }
+            if (has_crafted) { game.msg(`DBAutoCraft ${timestamp}`, "workshopautomation", null, null) }
         }
     },
 
@@ -676,9 +786,9 @@ DBTools.AutoCrafter = {
      * @param {boolean} forced_state
      * @returns {boolean}
      */
-    toggle_resource : function(resource, forced_state){
-        if (DBTools.Utils.NullCheck(resource,true) || DBTools.Utils.NullCheck(this.settings[resource],true)) { return false }
-        forced_state = DBTools.Utils.BoolCheck(forced_state,false,!this.settings[resource].enabled)
+    toggle_resource: function (resource, forced_state) {
+        if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) { return false }
+        forced_state = DBTools.Utils.BoolCheck(forced_state, false, !this.settings[resource].enabled)
         DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.setting[resource].enabled, forced_state)
         this.settings[resource].enabled = forced_state
         return this.settings[resource].enabled
@@ -688,17 +798,17 @@ DBTools.AutoCrafter = {
      * @param {string} name
      * @returns {string}
      */
-    GetSettings : function(name){
+    GetSettings: function (name) {
         var tmp, msg;
-        name = DBTools.Utils.StrCheck(name,false)
-        if(DBTools.Utils.HasValue(this.settings[name])){
+        name = DBTools.Utils.StrCheck(name, false)
+        if (DBTools.Utils.HasValue(this.settings[name])) {
             tmp = this.settings[name];
             msg = (`Name: ${name}\nEnabled: ${tmp.enabled}\nMultiplier: ${tmp.multiplier}`)
-            DBTools.Utils.messages.autocrafter_settings(name,tmp.enabled,tmp.multiplier)
+            DBTools.Utils.messages.autocrafter_settings(name, tmp.enabled, tmp.multiplier)
             return (msg)
-        }else{
+        } else {
             msg = (`${name} does not exist in settings.`)
-            DBTools.Utils.messages.errormsg(`AutoCrafter.GetSettings`,msg)
+            DBTools.Utils.messages.errormsg(`AutoCrafter.GetSettings`, msg)
             return `Error: ${msg}`
         }
     },
@@ -708,9 +818,14 @@ DBTools.AutoCrafter = {
      * @param {integer} new_multiplier
      * @returns {integer}
      */
-    set_mult : function(resource, new_multiplier){
-        if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) { return 0 }
-        new_multiplier = Math.max(DBTools.Utils.IntCheck(new_multiplier),1)
+    set_mult: function (resource, new_multiplier) {
+        if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) {
+            var msg = `${resource} is null or doesn't exist in settings.`
+            DBTools.Utils.messages.errormsg(`AutoCrafter.set_muklt`, msg)
+            console.log(msg)
+            return 0
+        }
+        new_multiplier = Math.max(DBTools.Utils.IntCheck(new_multiplier), 1)
         DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.settings[resource].multiplier, new_multiplier)
         this.settings[resource].multiplier = new_multiplier
         return this.settings[resource].multiplier
@@ -720,13 +835,13 @@ DBTools.AutoCrafter = {
      * @param {integer} number
      * @returns {integer}
      */
-    set_scale : function(number){
-        number = Math.max(DBTools.Utils.NumCheck(number),1)
+    set_scale: function (number) {
+        number = Math.max(DBTools.Utils.NumCheck(number), 1)
         this.generic_max_value_scale = number
         console.log(`[DBTools - Info]: generic_max_value_scale: ${this.generic_max_value_scale}`)
         return this.generic_max_value_scale
     }
-    
+
 
 }
 
@@ -734,12 +849,12 @@ DBTools.AutoReligion = {
     /**
      * @type {boolean}
      */
-    enabled : false,
+    enabled: false,
 
     /**
      * @returns {boolean}
      */
-    toggle : function(){
+    toggle: function () {
         DBTools.Utils.messages.toggled("AutoReligion", this.enabled, !this.enabled)
         this.enabled = !this.enabled
         return this.enabled
@@ -748,13 +863,13 @@ DBTools.AutoReligion = {
     /**
      * @type {number}
      */
-    percent : 0.95,
+    percent: 0.95,
 
     /**
      * @param {number} number
      * @returns {number}
      */
-    set_percent : function(number){
+    set_percent: function (number) {
         var new_value = DBTools.Utils.Clamp(number, 0, 1)
         DBTools.Utils.messages.changed_value("AutoReligion.percent", this.percent, new_value)
         this.percent = new_value;
@@ -765,9 +880,9 @@ DBTools.AutoReligion = {
      * @param {boolean} forced
      * @returns {void} 
      */
-    run : function(forced){
-        if(this.enabled || DBTools.Utils.BoolCheck(forced,false,false)){
-            if (DBTools.Utils.resource_table["faith"].value >= ( DBTools.Utils.resource_table["faith"].maxValue * this.percent )){ game.religion.praise() }
+    run: function (forced) {
+        if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
+            if (DBTools.Utils.resource_table["faith"].value >= (DBTools.Utils.resource_table["faith"].maxValue * this.percent)) { game.religion.praise() }
         }
     }
 }
@@ -790,17 +905,17 @@ DBTools.AutoUnicorn = {
     /**
      * @type {integer}
      */
-    min_val : 1e4,
+    min_val: 1e4,
 
     /**
      * @type {integer}
      */
-    multiplier : 1,
+    multiplier: 1,
 
     /**
      * @type {integer}
      */
-    base_cost : 2500,
+    base_cost: 2500,
 
     /**
      * @param {integer} number 
@@ -837,26 +952,26 @@ DBTools.AutoUnicorn = {
     /**
      * @type {object}
      */
-    click_hijack : {
-        domNode : { click : function(){DBTools.AutoUnicorn.init()} }
+    click_hijack: {
+        domNode: { click: function () { DBTools.AutoUnicorn.init() } }
     },
 
     /**
      * @returns {void}
      */
-    init: function(){
-        if(DBTools.Utils.NullCheck(game.religionTab.sacrificeBtn)){
+    init: function () {
+        if (DBTools.Utils.NullCheck(game.religionTab.sacrificeBtn)) {
             this.hijacker();
-        }else{
+        } else {
             DBTools.Utils.tab_table.religion.domNode.click()
-            setTimeout(this.hijacker,500)
+            setTimeout(this.hijacker, 500)
         }
     },
 
     /**
      * @returns {void}
      */
-    hijacker : function(){
+    hijacker: function () {
         this.click_hijack = Object.assign({}, game.religionTab.sacrificeBtn)
     }
 }
@@ -890,7 +1005,7 @@ DBTools.AutoHunt = {
     /**
      * @type {boolean}
      */
-    enabled : false,
+    enabled: false,
 
     /**
      * @returns {boolean}
@@ -909,7 +1024,7 @@ DBTools.AutoHunt = {
     /**
      * @type {integer}
      */
-    multiplier : 5,
+    multiplier: 5,
 
     /**
      * @param {integer} number
@@ -917,7 +1032,7 @@ DBTools.AutoHunt = {
      */
     set_mult: function (number) {
         var new_mult = Math.max(DBTools.Utils.IntCheck(number, 1), 1)
-        DBTools.Utils.messages.changed_value("AutoHunt.multiplier",this.multiplier,new_mult)
+        DBTools.Utils.messages.changed_value("AutoHunt.multiplier", this.multiplier, new_mult)
         this.multiplier = new_mult
         return this.multiplier
     },
@@ -929,11 +1044,56 @@ DBTools.AutoHunt = {
      * @returns {void}
      */
     run: function (forced) {
-        if (this.enabled || DBTools.Utils.BoolCheck(forced,false,false)) {
+        if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
             var atLimit = (DBTools.Utils.resource_table["manpower"].value > (DBTools.Utils.resource_table["manpower"].maxValue - this.cost))
             var canAfford = (DBTools.Utils.resource_table["manpower"].value > (this.cost * this.multiplier))
-            if (atLimit && canAfford)
-            { game.resPool.addResEvent("manpower", (-this.cost * this.multiplier)); game.village.gainHuntRes(this.multiplier) }
+            if (atLimit && canAfford) { game.resPool.addResEvent("manpower", (-this.cost * this.multiplier)); game.village.gainHuntRes(this.multiplier) }
+        }
+    },
+
+    /**
+     * 
+     * @param {*} enabled 
+     * @param {*} cost 
+     * @param {*} multiplier 
+     */
+    load_data: function(enabled,cost,multiplier){
+        var valid_enabled = DBTools.Utils.BoolCheck(enabled,true,false)
+        var valid_cost = DBTools.Utils.TypeCheck(cost, 'number')
+        var valid_multiplier = DBTools.Utils.TypeCheck(multiplier, 'number')
+        var valid_inputs = (valid_enabled && valid_cost && valid_multiplier)
+
+        if(valid_inputs){
+            var clamped_cost = DBTools.Utils.Clamp(cost, 1, Number.MAX_SAFE_INTEGER)
+            var clamped_multiplier = DBTools.Utils.Clamp(multiplier, 1, Number.MAX_SAFE_INTEGER)
+            this.enabled = enabled
+            this.cost = clamped_cost
+            this.multiplier = clamped_multiplier
+            return true
+        }else{
+            var err_header = `Error`;
+            var composed_msg;
+            var err_count = 0;
+            var invalid_state = `Invalid enabled state: `
+            var invalid_cost = `Invalid cost value: `
+            var invalid_mult = `Invalid multiplier value: `
+            if(!valid_enabled){
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
+            }
+            if(!valid_cost){
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_cost}${cost}`
+            }
+            if(!valid_multiplier){
+                err_count += 1
+                composed_msg = `${composed_msg}\n${invalid_mult}${multiplier}`
+            }
+            if(err_count > 1){
+                err_header = `${err_header}s`
+            }
+            composed_msg = `${err_header}${composed_msg}`
+            console.log(composed_msg)
         }
     },
 }
