@@ -173,7 +173,12 @@ DBTools.Utils = {
      */
     TypeCheck: function(input_value,desired_type) {
         if(this.HasValue(desired_type)){
-            return typeof(this.NullCheck(input_value) == desired_type)
+            if(desired_type == 'array'){
+                return Array.isArray(this.NullCheck(input_value))
+            }
+            else{
+                return typeof(this.NullCheck(input_value) == desired_type)
+            }
         }else{
             return false
         }
