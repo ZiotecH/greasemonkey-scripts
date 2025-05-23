@@ -158,6 +158,14 @@ DBTools.Utils = {
         return Math.max(Math.min(input_value,max_value),min_value)
     },
 
+    /**
+     * @param {*} input_value
+     * @returns {boolean}
+     */
+    HasValue: function(input_value){
+        if(this.NullCheck(input_value,false,false)){return true}else{return false}
+    },
+
     resource_table: {
         "catnip": 0,
         "wood": 1,
@@ -236,8 +244,8 @@ DBTools.Utils = {
     
     messages : {
         /**
-        * @param string message
-        * @param string sender
+        * @param {string} message
+        * @param {string} sender
         */
         wrapper : function(message,sender){
             sender = DBTools.Utils.StrCheck(sender,"DBTools")
@@ -246,52 +254,52 @@ DBTools.Utils = {
         },
 
         /**
-        * @param string what_value
-        * @param any from_value
-        * @param any to_value
+        * @param {string} what_value
+        * @param {*} from_value
+        * @param {*} to_value
         */
         toggled : function(what_value,from_value,to_value){
            this.wrapper(`Toggled ${what_value} from ${from_value} to ${to_value}.`)
         },
 
         /**
-        * @param string what_value
-        * @param any to_value
+        * @param {string} what_value
+        * @param {any} to_value
         */
         set_value: function (what_value, to_value){
             this.wrapper(`Set ${what_value} to ${to_value}.`)
         },
 
         /**
-        * @param string what_value
-        * @param any from_value
-        * @param any to_value
+        * @param {string} what_value
+        * @param {*} from_value
+        * @param {*} to_value
         */
         changed_value: function (what_value, from_value, to_value){
             this.wrapper(`Changed ${what_value} from ${from_value} to ${to_value}.`)
         },
 
         /**
-        * @param string what_value
-        * @param string error_message
+        * @param {string} sender
+        * @param {string} error_message
         */
-        error: function(what_value, error_message){
-            game.msg(`${what_value}: ${error_message}`,null, null, true)
-            game.msg(`${DBTools.Utils.TimeStamp()} DBTools - ERROR`,"DBTools.Error","DBTools.Error",null)
+        errormsg: function(sender, error_message){
+            game.msg(`${error_message}`,null, null, true)
+            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - ERROR`,"DBTools.Error","DBTools.Error",null)
         },
 
         /**
-        * @param string what_value
-        * @param string info_message
+        * @param {string} what_value
+        * @param {string} info_message
         */
-        info : function(what_value, info_message){
+        infomsg : function(what_value, info_message){
             this.wrapper(info_message,what_value)
         },
         
         /**
-        * @param string input_name
-        * @param bool input_enabled
-        * @param integer input_multiplier 
+        * @param {string} input_name
+        * @param {bool} input_enabled
+        * @param {integer} input_multiplier 
         */
         autocrafter_settings: function(input_name,input_enabled,input_multiplier){
             game.msg(`${input_multiplier}`, "DBTools.AutoCrafter", "item_settings", true)
@@ -681,12 +689,17 @@ DBTools.AutoCrafter = {
      * @returns {string}
      */
     GetSettings : function(name){
+        var tmp, msg;
         name = DBTools.Utils.StrCheck(name,false)
-        if(DBTools.Utils.BoolCheck(settings[name],false,false)){
-            var tmp = this.settings[name];
-            var msg = (`Name: ${name}\nEnabled: ${tmp.enabled}\nMultiplier: ${tmp.multiplier}`)
+        if(DBTools.Utils.HasValue(this.settings[name])){
+            tmp = this.settings[name];
+            msg = (`Name: ${name}\nEnabled: ${tmp.enabled}\nMultiplier: ${tmp.multiplier}`)
             DBTools.Utils.messages.autocrafter_settings(name,tmp.enabled,tmp.multiplier)
             return (msg)
+        }else{
+            msg = (`${name} does not exist in settings.`)
+            DBTools.Utils.messages.errormsg(`AutoCrafter.GetSettings`,msg)
+            return `Error: ${msg}`
         }
     },
 
