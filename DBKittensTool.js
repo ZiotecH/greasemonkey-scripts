@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 20
+DBTools.version = 23
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -114,6 +114,26 @@ DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug, save_id, au
         console.log(composed_msg)
         return false
     }
+}
+
+/**
+ * @param {integer} number 
+ * @returns {integer}
+ */
+DBTools.SetPrecision = function(number){
+    number = this.Utils.IntCheck(number,3)
+    this.Precision = number
+    return this.Precision
+}
+
+/**
+ * @param {boolean} forced_state
+ * @returns {boolean}
+ */
+DBTools.ToggleDebug = function(forced_state){
+    forced_state = this.Utils.BoolCheck(forced_state,false,this.Debug)
+    this.Debug = forced_state
+    return this.Debug
 }
 
 DBTools.Utils = {
@@ -575,7 +595,7 @@ DBTools.Utils = {
                 encoded_data = localStorage.getItem(save_id)
                 savedata = JSON.parse(atob(encoded_data))
                 // Sanity check for save versions 
-                if (!DBTools.HasValue(savedata.global_data.version)) {
+                if (!DBTools.Utils.HasValue(savedata.global_data.version)) {
                     savedata.global_data.version = -1
                 }
                 // Sanitize saved data between versions
@@ -655,8 +675,8 @@ DBTools.Classes = {
 
         constructor(input_string, input_cost, input_minimum) {
             input_string = DBTools.StrCheck(input_string, "")
-            input_cost = DBTools.Clamp(DBTools.IntCheck(input_cost, 1), 1, Number.MAX_SAFE_INTEGER)
-            input_minimum = DBTools.Clamp(DBTools.IntCheck(input_minimum, -1), -1, Number.MAX_SAFE_INTEGER)
+            input_cost = DBTools.Clamp(DBTools.Utils.IntCheck(input_cost, 1), 1, Number.MAX_SAFE_INTEGER)
+            input_minimum = DBTools.Clamp(DBTools.Utils.IntCheck(input_minimum, -1), -1, Number.MAX_SAFE_INTEGER)
 
             this.name = input_string
             this.cost = input_cost
@@ -682,7 +702,7 @@ DBTools.Toggle = function (forced_state) {
  * @returns {integer} 
  */
 DBTools.Rate = function (number) {
-    var new_value = DBTools.Utils.Clamp(DBTools.IntCheck(number, DBTools.GlobalTimer), 200, 86400)
+    var new_value = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(number, DBTools.GlobalTimer), 200, 86400)
     this.Utils.messages.changed_value("GlobalTimer", this.GlobalTimer, new_value)
     this.GlobalTimer = new_value
     return this.GlobalTimer
