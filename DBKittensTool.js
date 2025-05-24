@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 24
+DBTools.version = 25
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -43,6 +43,7 @@ DBTools.SetAutosaveInterval = function (number) {
 DBTools.Init = function () {
     DBTools.Utils.resource_init()
     DBTools.Utils.tab_init()
+    DBTools.AutoCrafter.Init()
     DBTools.Initiated = true
     if (this.Utils.load_save.check_for_saved_settings(this.save_id)) {
         this.Utils.load_save.load_saved_settings(this.save_id)
@@ -668,19 +669,76 @@ DBTools.Classes = {
             this.requires_positive = input_bool
         }
     },
+    
     ingredient: class {
         name = ""
         cost = 1
         min_val = -1
+        max_val = Number.MAX_SAFE_INTEGER
 
-        constructor(input_string, input_cost, input_minimum) {
+        smin(number) {
+            if (DBTools.Utils.TypeCheck(number, 'number')) {
+                number = DBTools.Utils.IntCheck(number, -1)
+                if (this.max_val < number) { number = DBTools.Utils.Clamp(number, -1, this.max_val) }
+                this.min_val = number
+                return this.min_val
+            }
+            else{
+                return 0
+            }
+        }
+
+        smax(number) {
+            if (DBTools.Utils.TypeCheck(number, 'number')) {
+                number = DBTools.Utils.IntCheck(number, -1)
+                if (this.min_val > number) { number = DBTools.Utils.Clamp(number, this.min_val, Number.MAX_SAFE_INTEGER) }
+                this.max_val = number
+                return this.max_val
+            }
+            else {
+                return 0
+            }
+        }
+
+        gmin(){
+            return this.min_val
+        }
+
+        gmax(){
+            return this.max_val
+        }
+
+        gcost(){
+            return this.cost
+        }
+
+        gname(){
+            return this.name
+        }
+
+        constructor(input_string, input_cost, input_minimum, input_maximum) {
             input_string = DBTools.StrCheck(input_string, "")
             input_cost = DBTools.Clamp(DBTools.Utils.IntCheck(input_cost, 1), 1, Number.MAX_SAFE_INTEGER)
             input_minimum = DBTools.Clamp(DBTools.Utils.IntCheck(input_minimum, -1), -1, Number.MAX_SAFE_INTEGER)
+            input_maximum = DBTools.Clamp(DBTools.Utils.IntCheck(input_maximum, -1), -1, input_minimum)
 
             this.name = input_string
             this.cost = input_cost
             this.min_val = input_minimum
+            this.max_val = input_maximum
+        }
+    }
+
+    crafting_setting: class {
+        enabled = false,
+        multiplier = 1
+
+        constructor(input_enabled, input_mult){
+            input_enabled = DBTools.Utils.BoolCheck(input_enabled,false,false)
+            input_mult = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_mult, 1), 1, Number.MAX_SAFE_INTEGER)
+
+            this.enabled = input_enabled
+            this.multiplier = input_mult
         }
     }
 }
@@ -798,20 +856,6 @@ DBTools.AutoCrafter = {
     },
 
     settings: {
-        wood: { enabled: false, multiplier: 1 },
-        beam: { enabled: false, multiplier: 1 },
-        scaffold: { enabled: false, multiplier: 1 },
-        ship: { enabled: false, multiplier: 1 },
-        slab: { enabled: false, multiplier: 1 },
-        plate: { enabled: falfalsese, multiplier: 1 },
-        steel: { enabled: false, multiplier: 1 },
-        gear: { enabled: false, multiplier: 1 },
-        alloy: { enabled: false, multiplier: 1 },
-        megalith: { enabled: false, multiplier: 1 },
-        parchment: { enabled: false, multiplier: 1 },
-        manuscript: { enabled: false, multiplier: 1 },
-        compendium: { enabled: false, multiplier: 1 },
-        blueprint: { enabled: false, multiplier: 1 },
     },
 
     /**
@@ -823,88 +867,7 @@ DBTools.AutoCrafter = {
      * @type {DBTools.Classes.crafting_prereq[]}
      */
     prereqs: {
-        //wood : new DBTools.Classes.prereqs([new DBTools.Classes.ingredient("catnip",50,-1)],true)
-        wood: {
-            ingredients: [{ name: "catnip", cost: 50, min_val: -1 }],
-            requires_positive: true
-        },
-        beam: {
-            ingredients: [{ name: "wood", cost: 175, min_val: -1 }],
-            requires_positive: false
-        },
-        scaffold: {
-            ingredients: [{ name: "beam", cost: 50, min_val: -1 }],
-            requires_positive: false
-        },
-        ship: {
-            ingredients: [
-                { name: "starchart", cost: 25, min_val: -1 },
-                { name: "plate", cost: 150, min_val: -1 },
-                { name: "scaffold", cost: 100, min_val: -1 }
-            ],
-            requires_positive: false
-        },
-        slab: {
-            ingredients: [{ name: "minerals", cost: 250, min_val: -1 }],
-            requires_positive: false
-        },
-        plate: {
-            ingredients: [{ name: "iron", cost: 125, min_val: -1 }],
-            requires_positive: false
-        },
-        steel: {
-            ingredients: [
-                { name: "iron", cost: 100, min_val: -1 },
-                { name: "coal", cost: 100, min_val: -1 }
-            ],
-            requires_positive: false
-        },
-        gear: {
-            ingredients: [{ name: "steel", cost: 15, min_val: -1 }],
-            requires_positive: false
-        },
-        alloy: {
-            ingredients: [
-                { name: "steel", cost: 75, min_val: -1 },
-                { name: "titanium", cost: 10, min_val: -1 },
-            ],
-            requires_positive: false
-        },
-        megalith: {
-            ingredients: [
-                { name: "beam", cost: 25, min_val: -1 },
-                { name: "slab", cost: 50, min_val: -1 },
-                { name: "plate", cost: 5, min_val: -1 },
-            ],
-            requires_positive: false
-        },
-        parchment: {
-            ingredients: [{ name: "furs", cost: 175, min_val: -1 }],
-            requires_positive: true
-        },
-        manuscript: {
-            ingredients: [
-                { name: "parchment", cost: 20, min_val: -1 },
-                { name: "culture", cost: 300, min_val: -1 }
-            ],
-            requires_positive: false
-        },
-        compendium: {
-            ingredients: [
-                { name: "science", cost: 1e4, min_val: -1 },
-                { name: "manuscript", cost: 50, min_val: -1 }
-            ],
-            requires_positive: true
-        },
-        blueprint: {
-            ingredients: [
-                { name: "science", cost: 2.5e4, min_val: -1 },
-                { name: "compendium", cost: 25, min_val: -1 }
-            ],
-            requires_positive: false
-        },
     },
-
 
     /**
      * @param {string} resource 
@@ -1084,7 +1047,8 @@ DBTools.AutoCrafter = {
                             var sameName = (saved.ingredients[subindex].name == this.prereqs[name].ingredients[subindex].name)
                             var sameCost = (saved.ingredients[subindex].cost == this.prereqs[name].ingredients[subindex].cost)
                             if (sameName && sameCost) {
-                                this.prereqs[name].ingredients[subindex].min_val = DBTools.Utils.Clamp(saved.ingredients[subindex].min_val, -1, Number.MAX_SAFE_INTEGER)
+                                this.prereqs[name].ingredients[subindex].smin(saved.ingredients[subindex].min_val)
+                                this.prereqs[name].ingredients[subindex].smax(saved.ingredients[subindex].max_val)
                             } else {
                                 console.log(`Warning: Saved ingredients for ${name} don't match reference.`)
                             }
@@ -1134,6 +1098,24 @@ DBTools.AutoCrafter = {
             DBTools.Utils.messages.errormsg(`AutoUnicorn.load_data`, error_array)
             console.log(composed_msg)
             return false
+        }
+    },
+
+    /**
+     * @returns {void}
+     */
+    Init: function(){
+        for(var index = 0; index < this.handled_craftables.length; index++){
+            var name = this.handled_craftables[index]
+            var craftdata = game.workshop.getCraftPrice(game.workshop.getCraft(name))
+            var prereq_ingredients = []
+            var prereq_safe = false
+            if (name == 'wood' || name == 'compendium') { prereq_safe = true } else { prereq_safe = false }
+            this.settings[name] = new DBTools.Classes.crafting_setting(false, 1) 
+            for(var subindex = 0; subindex < craftdata.length; subindex++){
+                prereq_ingredients.push(new DBTools.Classes.ingredient(craftdata[subindex].name, craftdata[subindex].val))
+            }
+            this.prereqs[name] = new DBTools.Classes.crafting_prereq(prereq_ingredients, prereq_safe)
         }
     },
 }
