@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 25
+DBTools.version = 26
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -658,23 +658,49 @@ DBTools.Utils = {
 }
 
 DBTools.Classes = {
+
     crafting_prereq: class {
         ingredients = []
         requires_positive = false
 
         constructor(input_array, input_bool) {
-            input_array = DBTools.ArrCheck(input_array)
-            input_bool = DBTools.BoolCheck(input_bool, false, false)
-            this.ingredients = input_array
-            this.requires_positive = input_bool
+            input_array             = DBTools.Utils.ArrCheck(input_array)
+            input_bool              = DBTools.Utils.BoolCheck(input_bool, false, false)
+            this.ingredients        = input_array
+            this.requires_positive  = input_bool
         }
     },
-    
+
+    crafting_setting: class {
+        enabled = false
+        multiplier = 1
+
+        constructor(input_enabled, input_mult){
+            input_enabled = DBTools.Utils.BoolCheck(input_enabled,false,false)
+            input_mult = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_mult, 1), 1, Number.MAX_SAFE_INTEGER)
+
+            this.enabled = input_enabled
+            this.multiplier = input_mult
+        }
+    },
+
     ingredient: class {
         name = ""
         cost = 1
         min_val = -1
         max_val = Number.MAX_SAFE_INTEGER
+
+        constructor(input_string, input_cost, input_minimum, input_maximum) {
+            input_string    = DBTools.Utils.StrCheck(input_string, "")
+            input_cost      = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_cost, 1), 1, Number.MAX_SAFE_INTEGER)
+            input_minimum   = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_minimum, -1), -1, Number.MAX_SAFE_INTEGER)
+            input_maximum   = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_maximum, -1), -1, input_minimum)
+
+            this.name       = input_string
+            this.cost       = input_cost
+            this.min_val    = input_minimum
+            this.max_val    = input_maximum
+        }
 
         smin(number) {
             if (DBTools.Utils.TypeCheck(number, 'number')) {
@@ -683,7 +709,7 @@ DBTools.Classes = {
                 this.min_val = number
                 return this.min_val
             }
-            else{
+            else {
                 return 0
             }
         }
@@ -700,47 +726,22 @@ DBTools.Classes = {
             }
         }
 
-        gmin(){
+        gmin() {
             return this.min_val
         }
 
-        gmax(){
+        gmax() {
             return this.max_val
         }
 
-        gcost(){
+        gcost() {
             return this.cost
         }
 
-        gname(){
+        gname() {
             return this.name
         }
-
-        constructor(input_string, input_cost, input_minimum, input_maximum) {
-            input_string = DBTools.StrCheck(input_string, "")
-            input_cost = DBTools.Clamp(DBTools.Utils.IntCheck(input_cost, 1), 1, Number.MAX_SAFE_INTEGER)
-            input_minimum = DBTools.Clamp(DBTools.Utils.IntCheck(input_minimum, -1), -1, Number.MAX_SAFE_INTEGER)
-            input_maximum = DBTools.Clamp(DBTools.Utils.IntCheck(input_maximum, -1), -1, input_minimum)
-
-            this.name = input_string
-            this.cost = input_cost
-            this.min_val = input_minimum
-            this.max_val = input_maximum
-        }
-    }
-
-    crafting_setting: class {
-        enabled = false,
-        multiplier = 1
-
-        constructor(input_enabled, input_mult){
-            input_enabled = DBTools.Utils.BoolCheck(input_enabled,false,false)
-            input_mult = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_mult, 1), 1, Number.MAX_SAFE_INTEGER)
-
-            this.enabled = input_enabled
-            this.multiplier = input_mult
-        }
-    }
+    },
 }
 
 /**
@@ -1107,15 +1108,18 @@ DBTools.AutoCrafter = {
     Init: function(){
         for(var index = 0; index < this.handled_craftables.length; index++){
             var name = this.handled_craftables[index]
-            var craftdata = game.workshop.getCraftPrice(game.workshop.getCraft(name))
-            var prereq_ingredients = []
-            var prereq_safe = false
-            if (name == 'wood' || name == 'compendium') { prereq_safe = true } else { prereq_safe = false }
-            this.settings[name] = new DBTools.Classes.crafting_setting(false, 1) 
-            for(var subindex = 0; subindex < craftdata.length; subindex++){
-                prereq_ingredients.push(new DBTools.Classes.ingredient(craftdata[subindex].name, craftdata[subindex].val))
+            var craftdata = game.workshop.getCraft(name)
+            if(!DBTools.Utils.NullCheck(craftdata, true, true)){
+                var pricedata = game.workshop.getCraftPrice(craftdata)
+                var prereq_ingredients = []
+                var prereq_safe = false
+                if (name == 'wood' || name == 'compendium') { prereq_safe = true } else { prereq_safe = false }
+                this.settings[name] = new DBTools.Classes.crafting_setting(false, 1) 
+                for(var subindex = 0; subindex < pricedata.length; subindex++){
+                    prereq_ingredients.push(new DBTools.Classes.ingredient(pricedata[subindex].name, pricedata[subindex].val))
+                }
+                this.prereqs[name] = new DBTools.Classes.crafting_prereq(prereq_ingredients, prereq_safe)
             }
-            this.prereqs[name] = new DBTools.Classes.crafting_prereq(prereq_ingredients, prereq_safe)
         }
     },
 }
