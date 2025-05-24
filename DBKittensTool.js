@@ -33,6 +33,57 @@ DBTools.Init = function () {
     DBTools.Initiated = true
 }
 
+DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug){
+    var valid_rate = this.Utils.TypeCheck(GlobalTimer, 'number')
+    var valid_precision = this.Utils.TypeCheck(Precision, 'number')
+    var valid_state = this.Utils.BoolCheck(Halt, true, false)
+    var valid_debug = this.Utils.BoolCheck(Debug, true, false)
+    var valid_settings = (valid_rate && valid_precision && valid_state && valid_debug)
+    if(valid_settings){
+        DBTools.Rate(GlobalTimer)
+        DBTools.SetPrecision(Precision)
+        DBTools.Toggle(Halt)
+        DBTools.ToggleDebug(Debug)
+        return true
+    }else{
+        var err_header = `Error`;
+        var composed_msg;
+        var err_count = 0;
+        var error_array = [];
+        var invalid_state = `Invalid Halt state: `
+        var invalid_precision = `Invalid Precision value: `
+        var invalid_rate = `Invalid GlobalTimer value: `
+        var invalid_debug = `Invalid Debug state: `
+        if (!valid_enabled) {
+            err_count += 1
+            composed_msg = `${composed_msg}\n${invalid_state}${Halt}`
+            error_array.push(`${invalid_state}${Halt}`)
+        }
+        if (!valid_precision) {
+            err_count += 1
+            composed_msg = `${composed_msg}\n${invalid_precision}${Precision}`
+            error_array.push(`${invalid_precision}${Precision}`)
+        }
+        if (!valid_rate) {
+            err_count += 1
+            composed_msg = `${composed_msg}\n${invalid_rate}${GlobalTimer}`
+            error_array.push(`${invalid_rate}${GlobalTimer}`)
+        }
+        if(!valid_debug){
+            err_count += 1
+            composed_msg = `${composed_msg}\n${invalid_debug}${Debug}`
+            error_array.push(`${invalid_debug}${Debug}`)
+        }
+        if (err_count > 1) {
+            err_header = `${err_header}s`
+        }
+        composed_msg = `${err_header}${composed_msg}`
+        DBTools.Utils.messages.errormsg(`DBTools.load_globals`, error_array)
+        console.log(composed_msg)
+        return false
+    }
+}
+
 DBTools.Utils = {
     /**
     * @param {*} input_value
@@ -310,15 +361,23 @@ DBTools.Utils = {
             }else{
                 game.msg(`${error_message}`, `DBTools.ErrorDesc`, `DBTools.Error`, true)
             }
-            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - ERROR`, "DBTools.Error", "DBTools.Error", null)
+            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - ERROR`, "DBTools.ErrorHeader", "DBTools.Error", null)
         },
 
         /**
-        * @param {string} what_value
+        * @param {string} sender
+        * @param {string[]} info_message
         * @param {string} info_message
         */
-        infomsg: function (what_value, info_message) {
-            this.wrapper(info_message, what_value)
+        infomsg: function (sender, info_message) {
+            if (DBTools.Utils.TypeCheck(info_message)) {
+                for (var index = 0; index < info_message.length; index++) {
+                    game.msg(`${info_message[index]}`, `DBTools.InfoSub`, `DBTools.Info`, true)
+                }
+            } else {
+                game.msg(`${info_message}`, `DBTools.InfoSub`, `DBTools.Info`, true)
+            }
+            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - Info`, "DBTools.InfoHeader", "DBTools.Info", null)
         },
 
         /**
@@ -411,7 +470,7 @@ DBTools.Utils = {
                     Halt: DBTools.Halt,
                     Debug: DBTools.Debug,
                 },
-                autocrafter_data: {
+                autocrafter: {
                     enabled: DBTools.AutoCrafter.enabled,
                     scale: DBTools.AutoCrafter.generic_max_value_scale,
                     settings: DBTools.AutoCrafter.settings,
@@ -461,19 +520,41 @@ DBTools.Utils = {
 
         /**
          * @param {string} save_id
-         * @returns {void}
+         * @returns {boolean}
          */
         load_saved_settings: function (save_id) {
             save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
             var encoded_data;
             var savedata;
+            var success = {
+                autocrafter : false,
+                autoreligion : false,
+                autounicorn : false,
+                autoscience : false,
+                autohunt : false,
+                globals : false
+            }
             if(this.check_for_saved_settings(save_id)){
                 console.log(`Loading DBTools data from ${save_id}`)
                 encoded_data = localStorage.getItem(save_id)
                 savedata = JSON.parse(atob(encoded_data))
                 // AutoCrafter
-                DBTools.AutoCrafter.enabled = savedata.autocrafter.enabled
-                
+                setting = savedata.autocrafter
+                success.autocrafter = DBTools.AutoCrafter.load_data(setting.enabled, setting.settings, setting.prereqs, setting.scale)
+                setting = savedata.autoreligion
+                success.autoreligion = DBTools.AutoReligion.load_data(setting.enabled, setting.percent)
+                setting = savedata.autounicorn
+                success.autounicorn = DBTools.AutoUnicorn.load_data(setting.enabled, setting.min_val, setting.multiplier, setting.base_cost)
+                setting = savedata.autoscience
+                success.autoscience = DBTools.AutoUnicorn.load_data(setting.enabled)
+                setting = savedata.autohunt
+                success.autohunt = DBTools.AutoHunt.load_data(setting.enabled, setting.cost, setting.multiplier)
+                setting = savedata.global_data
+                success.globals = DBTools.load_globals(setting.GlobalTimer, setting.Precision, setting.Halt, setting.Debug)
+                DBTools.Utils.messages.infomsg()
+            }else{
+                DBTools.Utils.messages.errormsg(`load_save.load_saved_settings`,`${save_id} doesn't exist in localStorage.`)
+                return false
             }
         },
 
