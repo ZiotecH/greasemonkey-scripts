@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 18
+DBTools.version = 20
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
