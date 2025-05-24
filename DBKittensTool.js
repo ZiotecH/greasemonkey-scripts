@@ -1,28 +1,41 @@
 var DBTools = new Object
-
-/**
- * @type {boolean}
- */
+DBTools.version = 18
 DBTools.Halt = true
-
-/**
- * @type {integer}
- */
 DBTools.GlobalTimer = 1000
-
-/**
- * @type {boolean}
- */
 DBTools.Debug = false
+DBTools.Precision = 3
+DBTools.Initiated = false
+DBTools.autosave = false
+DBTools.autosave_interval = 3600000
 
 /**
- * @type {integer}
+ * Not sure how I'll implement this yet, but eh
+ * I'll probably save this as a separate 'universal' setting to check apart from the normal saved data
+ * @type {string}
  */
-DBTools.Precision = 3
+DBTools.save_id = `kittensgame_dbtools_saved_settings`
+
 /**
- * @type {boolean}
+ * @returns {boolean}
  */
-DBTools.Initiated = false
+DBTools.ToggleAutosave = function(){
+    this.autosave = !this.autosave
+    return this.autosave
+}
+
+
+/**
+ * @param {integer} number 
+ * @returns {boolean}
+ */
+DBTools.SetAutosaveInterval = function(number){
+    if(this.Utils.TypeCheck(number, 'number')){
+        this.autosave_interval = this.Utils.Clamp(parseInt(number), 3600000, Number.MAX_SAFE_INTEGER)
+        return true
+    }else{
+        return false
+    }
+}
 
 /**
 * @returns {void}
@@ -31,19 +44,38 @@ DBTools.Init = function () {
     DBTools.Utils.resource_init()
     DBTools.Utils.tab_init()
     DBTools.Initiated = true
+    if(this.Utils.load_save.check_for_saved_settings(this.save_id)){
+        this.Utils.load_save.load_saved_settings(this.save_id)
+    }
+    else{
+        this.ToggleAll()
+        this.Run()
+    }
 }
 
-DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug){
+DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug, save_id, autosave_state, autosave_interval){
     var valid_rate = this.Utils.TypeCheck(GlobalTimer, 'number')
     var valid_precision = this.Utils.TypeCheck(Precision, 'number')
     var valid_state = this.Utils.BoolCheck(Halt, true, false)
     var valid_debug = this.Utils.BoolCheck(Debug, true, false)
+    var valid_save_id = this.Utils.HasValue(save_id)
+    var valid_autosave_state = this.Utils.BoolCheck(autosave_state, true, false)
+    var valid_autosave_interval = this.Utils.TypeCheck(autosave_interval, 'number')
     var valid_settings = (valid_rate && valid_precision && valid_state && valid_debug)
     if(valid_settings){
         DBTools.Rate(GlobalTimer)
         DBTools.SetPrecision(Precision)
         DBTools.Toggle(Halt)
         DBTools.ToggleDebug(Debug)
+        if(valid_save_id){
+            DBTools.SetSaveID(save_id)
+        }
+        if(valid_autosave_state){
+            DBTools.autosave = autosave_state
+        }
+        if(valid_autosave_interval){
+            DBTools.SetAutosaveInterval(autosave_interval)
+        }
         return true
     }else{
         var err_header = `Error`;
@@ -462,13 +494,17 @@ DBTools.Utils = {
          * @returns {void}
         */
         save_settings: function (save_id) {
-            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, DBTools.save_id)
             var savedata = {
                 global_data: {
                     GlobalTimer: DBTools.GlobalTimer,
                     Precision: DBTools.Precision,
                     Halt: DBTools.Halt,
                     Debug: DBTools.Debug,
+                    save_id : DBTools.save_id,
+                    autosave_state : DBTools.autosave,
+                    autosave_interval : DBTools.autosave_interval,
+                    version : DBTools.version,
                 },
                 autocrafter: {
                     enabled: DBTools.AutoCrafter.enabled,
@@ -510,7 +546,7 @@ DBTools.Utils = {
          * @returns {boolean}
          */
         check_for_saved_settings: function (save_id) {
-            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, DBTools.save_id)
             if (DBTools.Utils.HasValue(localStorage.getItem(save_id))) {
                 return true
             } else {
@@ -523,9 +559,20 @@ DBTools.Utils = {
          * @returns {boolean}
          */
         load_saved_settings: function (save_id) {
-            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, DBTools.save_id)
             var encoded_data;
             var savedata;
+            // Sanity check for save versions 
+            if(!DBTools.HasValue(savedata.global_data.version)){
+                savedata.global_data.version = -1
+            }
+            // Sanitize saved data between versions
+            // TODO: Clean this up, make dedicated handler
+            if(savedata.global_data.version < DBTools.version){
+                if(!DBTools.Utils.HasValue(savedata.global_data.save_id)){savedata.global_data.save_id = DBTools.save_id}
+                if(!DBTools.Utils.HasValue(savedata.global_data.autosave_state)){savedata.global_data.autosave_state = DBTools.autosave}
+                if(!DBTools.Utils.HasValue(savedata.global_data.autosave_interval)){savedata.global_data.autosave_interval = DBTools.autosave_interval}
+            }
             var success = {
                 autocrafter : false,
                 autoreligion : false,
@@ -550,7 +597,7 @@ DBTools.Utils = {
                 setting = savedata.autohunt
                 success.autohunt = DBTools.AutoHunt.load_data(setting.enabled, setting.cost, setting.multiplier)
                 setting = savedata.global_data
-                success.globals = DBTools.load_globals(setting.GlobalTimer, setting.Precision, setting.Halt, setting.Debug)
+                success.globals = DBTools.load_globals(setting.GlobalTimer, setting.Precision, setting.Halt, setting.Debug, setting.save_id, setting.autosave_state, setting.autosave_interval)
                 DBTools.Utils.messages.infomsg(`load_save.load_saved_settings`,
                     `AutoCrafter: ${success.autocrafter}`,
                     `AutoReligion: ${success.autoreligion}`,
@@ -571,7 +618,7 @@ DBTools.Utils = {
          * @returns {boolean}
          */
         delete_saved_settings: function (save_id, force) {
-            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, DBTools.save_id)
             force = DBTools.Utils.BoolCheck(force,false,false)
             if(this.check_for_saved_settings(save_id)){
                 if(!force){
@@ -649,7 +696,6 @@ DBTools.Rate = function (number) {
 DBTools.CoreLoop = function (timeout, cancel) {
     timeout = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(timeout, DBTools.GlobalTimer), 200, 86400)
     cancel = DBTools.Utils.BoolCheck(cancel, false, DBTools.Halt)
-    if (!DBTools.Initiated) { DBTools.Init() }
 
     /* Runners */
     DBTools.AutoCrafter.run()
@@ -684,6 +730,21 @@ DBTools.ToggleAll = function () {
     this.AutoReligion.toggle()
     this.AutoHunt.toggle()
     this.AutoUnicorn.toggle()
+}
+
+/**
+ * @param {string} new_save_id 
+ * @returns {boolean}
+ */
+DBTools.SetSaveID = function(new_save_id) {
+    if(this.Utils.TypeCheck(new_save_id, 'string')){
+        this.Utils.messages.changed_value("save_id", this.save_id, new_save_id)
+        this.save_id = new_save_id
+        this.Utils.load_save.save_settings()
+        return true
+    }else{
+        return false
+    }
 }
 
 DBTools.AutoCrafter = {
@@ -1449,5 +1510,4 @@ DBTools.AutoHunt = {
     },
 }
 
-DBTools.ToggleAll()
-DBTools.Run()
+DBTools.Init()
