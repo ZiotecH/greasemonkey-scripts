@@ -551,7 +551,14 @@ DBTools.Utils = {
                 success.autohunt = DBTools.AutoHunt.load_data(setting.enabled, setting.cost, setting.multiplier)
                 setting = savedata.global_data
                 success.globals = DBTools.load_globals(setting.GlobalTimer, setting.Precision, setting.Halt, setting.Debug)
-                DBTools.Utils.messages.infomsg()
+                DBTools.Utils.messages.infomsg(`load_save.load_saved_settings`,
+                    `AutoCrafter: ${success.autocrafter}`,
+                    `AutoReligion: ${success.autoreligion}`,
+                    `AutoUnicorn: ${success.autounicorn}`,
+                    `AutoScience: ${success.autoscience}`,
+                    `AutoHunt: ${success.autohunt}`,
+                    `Globals: ${success.globals}`
+                );
             }else{
                 DBTools.Utils.messages.errormsg(`load_save.load_saved_settings`,`${save_id} doesn't exist in localStorage.`)
                 return false
