@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 23
+DBTools.version = 24
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -18,7 +18,7 @@ DBTools.save_id = `kittensgame_dbtools_saved_settings`
 /**
  * @returns {boolean}
  */
-DBTools.ToggleAutosave = function(){
+DBTools.ToggleAutosave = function () {
     this.autosave = !this.autosave
     return this.autosave
 }
@@ -28,11 +28,11 @@ DBTools.ToggleAutosave = function(){
  * @param {integer} number 
  * @returns {boolean}
  */
-DBTools.SetAutosaveInterval = function(number){
-    if(this.Utils.TypeCheck(number, 'number')){
+DBTools.SetAutosaveInterval = function (number) {
+    if (this.Utils.TypeCheck(number, 'number')) {
         this.autosave_interval = this.Utils.Clamp(parseInt(number), 3600000, Number.MAX_SAFE_INTEGER)
         return true
-    }else{
+    } else {
         return false
     }
 }
@@ -44,16 +44,16 @@ DBTools.Init = function () {
     DBTools.Utils.resource_init()
     DBTools.Utils.tab_init()
     DBTools.Initiated = true
-    if(this.Utils.load_save.check_for_saved_settings(this.save_id)){
+    if (this.Utils.load_save.check_for_saved_settings(this.save_id)) {
         this.Utils.load_save.load_saved_settings(this.save_id)
     }
-    else{
+    else {
         this.ToggleAll()
         this.Run()
     }
 }
 
-DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug, save_id, autosave_state, autosave_interval){
+DBTools.load_globals = function (GlobalTimer, Precision, Halt, Debug, save_id, autosave_state, autosave_interval) {
     var valid_rate = this.Utils.TypeCheck(GlobalTimer, 'number')
     var valid_precision = this.Utils.TypeCheck(Precision, 'number')
     var valid_state = this.Utils.BoolCheck(Halt, true, false)
@@ -62,22 +62,22 @@ DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug, save_id, au
     var valid_autosave_state = this.Utils.BoolCheck(autosave_state, true, false)
     var valid_autosave_interval = this.Utils.TypeCheck(autosave_interval, 'number')
     var valid_settings = (valid_rate && valid_precision && valid_state && valid_debug)
-    if(valid_settings){
+    if (valid_settings) {
         DBTools.Rate(GlobalTimer)
         DBTools.SetPrecision(Precision)
         DBTools.Toggle(Halt)
         DBTools.ToggleDebug(Debug)
-        if(valid_save_id){
+        if (valid_save_id) {
             DBTools.SetSaveID(save_id)
         }
-        if(valid_autosave_state){
+        if (valid_autosave_state) {
             DBTools.autosave = autosave_state
         }
-        if(valid_autosave_interval){
+        if (valid_autosave_interval) {
             DBTools.SetAutosaveInterval(autosave_interval)
         }
         return true
-    }else{
+    } else {
         var err_header = `Error`;
         var composed_msg;
         var err_count = 0;
@@ -101,7 +101,7 @@ DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug, save_id, au
             composed_msg = `${composed_msg}\n${invalid_rate}${GlobalTimer}`
             error_array.push(`${invalid_rate}${GlobalTimer}`)
         }
-        if(!valid_debug){
+        if (!valid_debug) {
             err_count += 1
             composed_msg = `${composed_msg}\n${invalid_debug}${Debug}`
             error_array.push(`${invalid_debug}${Debug}`)
@@ -120,8 +120,8 @@ DBTools.load_globals = function(GlobalTimer, Precision, Halt, Debug, save_id, au
  * @param {integer} number 
  * @returns {integer}
  */
-DBTools.SetPrecision = function(number){
-    number = this.Utils.IntCheck(number,3)
+DBTools.SetPrecision = function (number) {
+    number = this.Utils.IntCheck(number, 3)
     this.Precision = number
     return this.Precision
 }
@@ -130,8 +130,8 @@ DBTools.SetPrecision = function(number){
  * @param {boolean} forced_state
  * @returns {boolean}
  */
-DBTools.ToggleDebug = function(forced_state){
-    forced_state = this.Utils.BoolCheck(forced_state,false,this.Debug)
+DBTools.ToggleDebug = function (forced_state) {
+    forced_state = this.Utils.BoolCheck(forced_state, false, this.Debug)
     this.Debug = forced_state
     return this.Debug
 }
@@ -274,15 +274,15 @@ DBTools.Utils = {
      * @param {string} desired_type 
      * @returns {boolean}
      */
-    TypeCheck: function(input_value,desired_type) {
-        if(this.HasValue(desired_type)){
-            if(desired_type == 'array'){
+    TypeCheck: function (input_value, desired_type) {
+        if (this.HasValue(desired_type)) {
+            if (desired_type == 'array') {
                 return Array.isArray(this.NullCheck(input_value))
             }
-            else{
-                return typeof(this.NullCheck(input_value) == desired_type)
+            else {
+                return typeof (this.NullCheck(input_value) == desired_type)
             }
-        }else{
+        } else {
             return false
         }
     },
@@ -406,11 +406,11 @@ DBTools.Utils = {
          * @param {string} error_message Single string describing error
          */
         errormsg: function (sender, error_message) {
-            if(DBTools.Utils.TypeCheck(error_message)){
-                for(var index = 0; index < error_message.length; index++){
-                    game.msg(`${error_message[index]}`,`DBTools.ErrorDesc`, `DBTools.Error`, true)
+            if (DBTools.Utils.TypeCheck(error_message)) {
+                for (var index = 0; index < error_message.length; index++) {
+                    game.msg(`${error_message[index]}`, `DBTools.ErrorDesc`, `DBTools.Error`, true)
                 }
-            }else{
+            } else {
                 game.msg(`${error_message}`, `DBTools.ErrorDesc`, `DBTools.Error`, true)
             }
             game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - ERROR`, "DBTools.ErrorHeader", "DBTools.Error", null)
@@ -521,10 +521,10 @@ DBTools.Utils = {
                     Precision: DBTools.Precision,
                     Halt: DBTools.Halt,
                     Debug: DBTools.Debug,
-                    save_id : DBTools.save_id,
-                    autosave_state : DBTools.autosave,
-                    autosave_interval : DBTools.autosave_interval,
-                    version : DBTools.version,
+                    save_id: DBTools.save_id,
+                    autosave_state: DBTools.autosave,
+                    autosave_interval: DBTools.autosave_interval,
+                    version: DBTools.version,
                 },
                 autocrafter: {
                     enabled: DBTools.AutoCrafter.enabled,
@@ -583,14 +583,14 @@ DBTools.Utils = {
             var encoded_data;
             var savedata;
             var success = {
-                autocrafter : false,
-                autoreligion : false,
-                autounicorn : false,
-                autoscience : false,
-                autohunt : false,
-                globals : false
+                autocrafter: false,
+                autoreligion: false,
+                autounicorn: false,
+                autoscience: false,
+                autohunt: false,
+                globals: false
             }
-            if(this.check_for_saved_settings(save_id)){
+            if (this.check_for_saved_settings(save_id)) {
                 console.log(`Loading DBTools data from ${save_id}`)
                 encoded_data = localStorage.getItem(save_id)
                 savedata = JSON.parse(atob(encoded_data))
@@ -626,8 +626,8 @@ DBTools.Utils = {
                     `AutoHunt: ${success.autohunt}`,
                     `Globals: ${success.globals}`
                 );
-            }else{
-                DBTools.Utils.messages.errormsg(`load_save.load_saved_settings`,`${save_id} doesn't exist in localStorage.`)
+            } else {
+                DBTools.Utils.messages.errormsg(`load_save.load_saved_settings`, `${save_id} doesn't exist in localStorage.`)
                 return false
             }
         },
@@ -639,17 +639,17 @@ DBTools.Utils = {
          */
         delete_saved_settings: function (save_id, force) {
             save_id = DBTools.Utils.StrCheck(save_id, DBTools.save_id)
-            force = DBTools.Utils.BoolCheck(force,false,false)
-            if(this.check_for_saved_settings(save_id)){
-                if(!force){
+            force = DBTools.Utils.BoolCheck(force, false, false)
+            if (this.check_for_saved_settings(save_id)) {
+                if (!force) {
                     console.log(`WARNING; TRIED TO DELETE ${save_id}!`)
                 }
-                else{
+                else {
                     console.log(`WARNING; DELETING ${save_id}!`)
                     localStorage.removeItem(save_id)
                 }
                 return true
-            }else{
+            } else {
                 return false
             }
         },
@@ -756,13 +756,13 @@ DBTools.ToggleAll = function () {
  * @param {string} new_save_id 
  * @returns {boolean}
  */
-DBTools.SetSaveID = function(new_save_id) {
-    if(this.Utils.TypeCheck(new_save_id, 'string')){
+DBTools.SetSaveID = function (new_save_id) {
+    if (this.Utils.TypeCheck(new_save_id, 'string')) {
         this.Utils.messages.changed_value("save_id", this.save_id, new_save_id)
         this.save_id = new_save_id
         this.Utils.load_save.save_settings()
         return true
-    }else{
+    } else {
         return false
     }
 }
@@ -798,20 +798,20 @@ DBTools.AutoCrafter = {
     },
 
     settings: {
-        wood: { enabled: true, multiplier: 100 },
-        beam: { enabled: true, multiplier: 10 },
+        wood: { enabled: false, multiplier: 1 },
+        beam: { enabled: false, multiplier: 1 },
         scaffold: { enabled: false, multiplier: 1 },
         ship: { enabled: false, multiplier: 1 },
-        slab: { enabled: true, multiplier: 10 },
-        plate: { enabled: false, multiplier: 1 },
-        steel: { enabled: true, multiplier: 10 },
-        gear: { enabled: true, multiplier: 5 },
-        alloy: { enabled: true, multiplier: 1 },
+        slab: { enabled: false, multiplier: 1 },
+        plate: { enabled: falfalsese, multiplier: 1 },
+        steel: { enabled: false, multiplier: 1 },
+        gear: { enabled: false, multiplier: 1 },
+        alloy: { enabled: false, multiplier: 1 },
         megalith: { enabled: false, multiplier: 1 },
-        parchment: { enabled: true, multiplier: 50 },
+        parchment: { enabled: false, multiplier: 1 },
         manuscript: { enabled: false, multiplier: 1 },
-        compendium: { enabled: true, multiplier: 1 },
-        blueprint: { enabled: true, multiplier: 1 },
+        compendium: { enabled: false, multiplier: 1 },
+        blueprint: { enabled: false, multiplier: 1 },
     },
 
     /**
@@ -833,14 +833,14 @@ DBTools.AutoCrafter = {
             requires_positive: false
         },
         scaffold: {
-            ingredients: [{ name: "beam", cost: 50, min_val: 1e4 }],
+            ingredients: [{ name: "beam", cost: 50, min_val: -1 }],
             requires_positive: false
         },
         ship: {
             ingredients: [
-                { name: "starchart", cost: 25, min_val: 1e3 },
-                { name: "plate", cost: 150, min_val: 5e3 },
-                { name: "scaffold", cost: 100, min_val: 5e3 }
+                { name: "starchart", cost: 25, min_val: -1 },
+                { name: "plate", cost: 150, min_val: -1 },
+                { name: "scaffold", cost: 100, min_val: -1 }
             ],
             requires_positive: false
         },
@@ -860,31 +860,31 @@ DBTools.AutoCrafter = {
             requires_positive: false
         },
         gear: {
-            ingredients: [{ name: "steel", cost: 15, min_val: 1e4 }],
+            ingredients: [{ name: "steel", cost: 15, min_val: -1 }],
             requires_positive: false
         },
         alloy: {
             ingredients: [
-                { name: "steel", cost: 75, min_val: 7.5e3 },
+                { name: "steel", cost: 75, min_val: -1 },
                 { name: "titanium", cost: 10, min_val: -1 },
             ],
             requires_positive: false
         },
         megalith: {
             ingredients: [
-                { name: "beam", cost: 25, min_val: 7.5e3 },
-                { name: "slab", cost: 50, min_val: 5e3 },
-                { name: "plate", cost: 5, min_val: 5e3 },
+                { name: "beam", cost: 25, min_val: -1 },
+                { name: "slab", cost: 50, min_val: -1 },
+                { name: "plate", cost: 5, min_val: -1 },
             ],
             requires_positive: false
         },
         parchment: {
-            ingredients: [{ name: "furs", cost: 175, min_val: 1e6 }],
+            ingredients: [{ name: "furs", cost: 175, min_val: -1 }],
             requires_positive: true
         },
         manuscript: {
             ingredients: [
-                { name: "parchment", cost: 20, min_val: 1e4 },
+                { name: "parchment", cost: 20, min_val: -1 },
                 { name: "culture", cost: 300, min_val: -1 }
             ],
             requires_positive: false
@@ -892,14 +892,14 @@ DBTools.AutoCrafter = {
         compendium: {
             ingredients: [
                 { name: "science", cost: 1e4, min_val: -1 },
-                { name: "manuscript", cost: 50, min_val: 5e3 }
+                { name: "manuscript", cost: 50, min_val: -1 }
             ],
             requires_positive: true
         },
         blueprint: {
             ingredients: [
                 { name: "science", cost: 2.5e4, min_val: -1 },
-                { name: "compendium", cost: 25, min_val: 5e3 }
+                { name: "compendium", cost: 25, min_val: -1 }
             ],
             requires_positive: false
         },
@@ -993,7 +993,7 @@ DBTools.AutoCrafter = {
     toggle_resource: function (resource, forced_state) {
         if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) { return false }
         forced_state = DBTools.Utils.BoolCheck(forced_state, false, !this.settings[resource].enabled)
-        DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.setting[resource].enabled, forced_state)
+        DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.settings[resource].enabled, forced_state)
         this.settings[resource].enabled = forced_state
         return this.settings[resource].enabled
     },
@@ -1066,31 +1066,31 @@ DBTools.AutoCrafter = {
             var clamped_scale = DBTools.Utils.Clamp(generic_max_value_scale, 1, Number.MAX_SAFE_INTEGER)
             this.enabled = enabled
             //this.settings = settings
-            for(var index = 0; index < this.handled_craftables; index ++){
+            for (var index = 0; index < this.handled_craftables; index++) {
                 var name = this.handled_craftables[index]
-                if (DBTools.Utils.HasValue(settings[name])){
+                if (DBTools.Utils.HasValue(settings[name])) {
                     var saved = settings[name]
-                    var valid_setting = (DBTools.Utils.BoolCheck(saved.enabled, true, false) && (DBTools.Utils.IntCheck(saved.multiplier,1)))
-                    if(valid_setting){
+                    var valid_setting = (DBTools.Utils.BoolCheck(saved.enabled, true, false) && (DBTools.Utils.IntCheck(saved.multiplier, 1)))
+                    if (valid_setting) {
                         this.settings[name].enabled = saved.enabled
                         this.settings[name].multiplier = DBTools.Utils.Clamp(saved.multiplier, 1, Number.MAX_SAFE_INTEGER)
-                    }else{
+                    } else {
                         console.log(`Warning: Saved settings for ${name} are invalid.`)
                     }
                     saved = prereqs[name]
-                    var valid_prereq = (DBTools.Utils.TypeCheck(saved.ingredients, 'array') && DBTools.Utils.BoolCheck(saved.requires_positive,true,false))
-                    if(valid_prereq){
-                        for(var subindex = 0; subindex < saved.ingredients.length; subindex++){
-                            var sameName = ( saved.ingredients[subindex].name == this.prereqs[name].ingredients[subindex].name )
-                            var sameCost = ( saved.ingredients[subindex].cost == this.prereqs[name].ingredients[subindex].cost )
-                            if(sameName && sameCost){
+                    var valid_prereq = (DBTools.Utils.TypeCheck(saved.ingredients, 'array') && DBTools.Utils.BoolCheck(saved.requires_positive, true, false))
+                    if (valid_prereq) {
+                        for (var subindex = 0; subindex < saved.ingredients.length; subindex++) {
+                            var sameName = (saved.ingredients[subindex].name == this.prereqs[name].ingredients[subindex].name)
+                            var sameCost = (saved.ingredients[subindex].cost == this.prereqs[name].ingredients[subindex].cost)
+                            if (sameName && sameCost) {
                                 this.prereqs[name].ingredients[subindex].min_val = DBTools.Utils.Clamp(saved.ingredients[subindex].min_val, -1, Number.MAX_SAFE_INTEGER)
-                            }else{
+                            } else {
                                 console.log(`Warning: Saved ingredients for ${name} don't match reference.`)
                             }
                         }
                         this.prereqs[name].requires_positive = saved.requires_positive
-                    }else{
+                    } else {
                         console.log(`Warning: Saved prereqs for ${name} are invalid.`)
                     }
                 }
@@ -1345,7 +1345,7 @@ DBTools.AutoUnicorn = {
                 composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
                 error_array.push(`${invalid_state}${enabled}`)
             }
-            if(!valid_min_val){
+            if (!valid_min_val) {
                 err_count += 1
                 composed_msg = `${composed_msg}\n${invalid_minval}${min_val}`
                 error_array.push(`${invalid_minval}${min_val}`)
@@ -1399,13 +1399,13 @@ DBTools.AutoScience = {
      * @param {boolean} enabled 
      * @returns {boolean}
      */
-    load_data : function(enabled){
-        var valid_enabled = DBTools.Utils.BoolCheck(enabled,true,false)
+    load_data: function (enabled) {
+        var valid_enabled = DBTools.Utils.BoolCheck(enabled, true, false)
         var valid_inputs = (valid_enabled)
-        if(valid_inputs){
+        if (valid_inputs) {
             this.enabled = enabled
             return true
-        }else{
+        } else {
             var err_header = `Error`;
             var composed_msg;
             var err_count = 0;
@@ -1483,20 +1483,20 @@ DBTools.AutoHunt = {
      * @param {integer} multiplier
      * @returns {boolean}
      */
-    load_data: function(enabled,cost,multiplier){
-        var valid_enabled = DBTools.Utils.BoolCheck(enabled,true,false)
+    load_data: function (enabled, cost, multiplier) {
+        var valid_enabled = DBTools.Utils.BoolCheck(enabled, true, false)
         var valid_cost = DBTools.Utils.TypeCheck(cost, 'number')
         var valid_multiplier = DBTools.Utils.TypeCheck(multiplier, 'number')
         var valid_inputs = (valid_enabled && valid_cost && valid_multiplier)
 
-        if(valid_inputs){
+        if (valid_inputs) {
             var clamped_cost = DBTools.Utils.Clamp(cost, 1, Number.MAX_SAFE_INTEGER)
             var clamped_multiplier = DBTools.Utils.Clamp(multiplier, 1, Number.MAX_SAFE_INTEGER)
             this.enabled = enabled
             this.cost = clamped_cost
             this.multiplier = clamped_multiplier
             return true
-        }else{
+        } else {
             var err_header = `Error`;
             var composed_msg;
             var err_count = 0;
@@ -1504,26 +1504,26 @@ DBTools.AutoHunt = {
             var invalid_state = `Invalid enabled state: `
             var invalid_cost = `Invalid cost value: `
             var invalid_mult = `Invalid multiplier value: `
-            if(!valid_enabled){
+            if (!valid_enabled) {
                 err_count += 1
                 composed_msg = `${composed_msg}\n${invalid_state}${enabled}`
                 error_array.push(`${invalid_state}${enabled}`)
             }
-            if(!valid_cost){
+            if (!valid_cost) {
                 err_count += 1
                 composed_msg = `${composed_msg}\n${invalid_cost}${cost}`
                 error_array.push(`${invalid_cost}${cost}`)
             }
-            if(!valid_multiplier){
+            if (!valid_multiplier) {
                 err_count += 1
                 composed_msg = `${composed_msg}\n${invalid_mult}${multiplier}`
                 error_array.push(`${invalid_mult}${multiplier}`)
             }
-            if(err_count > 1){
+            if (err_count > 1) {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsg(`AutoCrafter.load_data`,error_array)
+            DBTools.Utils.messages.errormsg(`AutoCrafter.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
