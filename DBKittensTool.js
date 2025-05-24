@@ -562,17 +562,6 @@ DBTools.Utils = {
             save_id = DBTools.Utils.StrCheck(save_id, DBTools.save_id)
             var encoded_data;
             var savedata;
-            // Sanity check for save versions 
-            if(!DBTools.HasValue(savedata.global_data.version)){
-                savedata.global_data.version = -1
-            }
-            // Sanitize saved data between versions
-            // TODO: Clean this up, make dedicated handler
-            if(savedata.global_data.version < DBTools.version){
-                if(!DBTools.Utils.HasValue(savedata.global_data.save_id)){savedata.global_data.save_id = DBTools.save_id}
-                if(!DBTools.Utils.HasValue(savedata.global_data.autosave_state)){savedata.global_data.autosave_state = DBTools.autosave}
-                if(!DBTools.Utils.HasValue(savedata.global_data.autosave_interval)){savedata.global_data.autosave_interval = DBTools.autosave_interval}
-            }
             var success = {
                 autocrafter : false,
                 autoreligion : false,
@@ -585,6 +574,17 @@ DBTools.Utils = {
                 console.log(`Loading DBTools data from ${save_id}`)
                 encoded_data = localStorage.getItem(save_id)
                 savedata = JSON.parse(atob(encoded_data))
+                // Sanity check for save versions 
+                if (!DBTools.HasValue(savedata.global_data.version)) {
+                    savedata.global_data.version = -1
+                }
+                // Sanitize saved data between versions
+                // TODO: Clean this up, make dedicated handler
+                if (savedata.global_data.version < DBTools.version) {
+                    if (!DBTools.Utils.HasValue(savedata.global_data.save_id)) { savedata.global_data.save_id = DBTools.save_id }
+                    if (!DBTools.Utils.HasValue(savedata.global_data.autosave_state)) { savedata.global_data.autosave_state = DBTools.autosave }
+                    if (!DBTools.Utils.HasValue(savedata.global_data.autosave_interval)) { savedata.global_data.autosave_interval = DBTools.autosave_interval }
+                }
                 // AutoCrafter
                 setting = savedata.autocrafter
                 success.autocrafter = DBTools.AutoCrafter.load_data(setting.enabled, setting.settings, setting.prereqs, setting.scale)
