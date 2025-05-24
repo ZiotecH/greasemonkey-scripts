@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 26
+DBTools.version = 27
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -22,7 +22,6 @@ DBTools.ToggleAutosave = function () {
     this.autosave = !this.autosave
     return this.autosave
 }
-
 
 /**
  * @param {integer} number 
@@ -111,7 +110,7 @@ DBTools.load_globals = function (GlobalTimer, Precision, Halt, Debug, save_id, a
             err_header = `${err_header}s`
         }
         composed_msg = `${err_header}${composed_msg}`
-        DBTools.Utils.messages.errormsg(`DBTools.load_globals`, error_array)
+        DBTools.Utils.messages.errormsgmsg(`DBTools.load_globals`, error_array)
         console.log(composed_msg)
         return false
     }
@@ -289,64 +288,7 @@ DBTools.Utils = {
     },
 
     resource_table: {
-        "catnip": 0,
-        "wood": 1,
-        "minerals": 2,
-        "coal": 3,
-        "iron": 4,
-        "titanium": 5,
-        "gold": 6,
-        "oil": 7,
-        "uranium": 8,
-        "unobtainium": 9,
-        "antimatter": 10,
-        "manpower": 11,
-        "science": 12,
-        "culture": 13,
-        "faith": 14,
-        "kittens": 15,
-        "zebras": 16,
-        "starchart": 17,
-        "temporalFlux": 18,
-        "gflops": 19,
-        "hashrates": 20,
-        "furs": 21,
-        "ivory": 22,
-        "spice": 23,
-        "unicorns": 24,
-        "alicorn": 25,
-        "necrocorn": 26,
-        "tears": 27,
-        "karma": 28,
-        "paragon": 29,
-        "burnedParagon": 30,
-        "timeCrystal": 31,
-        "sorrow": 32,
-        "relic": 33,
-        "void": 34,
-        "elderBox": 35,
-        "wrappingPaper": 36,
-        "blackcoin": 37,
-        "bloodstone": 38,
-        "tMythril": 39,
-        "beam": 40,
-        "slab": 41,
-        "plate": 42,
-        "steel": 43,
-        "concrate": 44,
-        "gear": 45,
-        "alloy": 46,
-        "eludium": 47,
-        "scaffold": 48,
-        "ship": 49,
-        "tanker": 50,
-        "kerosene": 51,
-        "parchment": 52,
-        "manuscript": 53,
-        "compedium": 54,
-        "blueprint": 55,
-        "thorium": 56,
-        "megalith": 57,
+        known_resources: []
     },
 
     /**
@@ -356,9 +298,24 @@ DBTools.Utils = {
         for (var index = 0; index < game.resPool.resources.length; index++) {
             try {
                 this.resource_table[game.resPool.resources[index].name] = game.resPool.resources[index]
+                var current_resource = Object.assign({}, game.resPool.resources[index])
+                var name = current_resource.name
+                this.resource_table.known_resources.push(name)
+                if(current_resource.craftable){
+                    var craftdata = game.workshop.getCraft(name)
+                    var prereqdata = []
+                    var req_safe = false
+                    if(name == 'wood' || name == 'compedium'){req_safe = true}
+                    DBTools.AutoCrafter.settings[name] = new DBTools.Classes.crafting_setting(false, 1)
+                    for(var subindex = 0; subindex < craftdata.prices.length; subindex++){
+                        var ing = craftdata.prices[subindex]
+                        prereqdata.push(new DBTools.Classes.ingredient(ing.name, ing.val))
+                    }
+                    DBTools.AutoCrafter.prereqs[name] = new DBTools.Classes.crafting_prereq(prereqdata, req_safe)
+                }
             }
             catch {
-                this.messages.error(`Utils.resource_inint`, `${game.resPool.resources[index].name} doesn't exist in resource table.`)
+                this.messages.errormsg(`Utils.resource_init`, `${game.resPool.resources[index].name} doesn't exist in resource table.`)
             }
         }
         return true
@@ -628,7 +585,7 @@ DBTools.Utils = {
                     `Globals: ${success.globals}`
                 );
             } else {
-                DBTools.Utils.messages.errormsg(`load_save.load_saved_settings`, `${save_id} doesn't exist in localStorage.`)
+                DBTools.Utils.messages.errormsgmsg(`load_save.load_saved_settings`, `${save_id} doesn't exist in localStorage.`)
                 return false
             }
         },
@@ -976,7 +933,7 @@ DBTools.AutoCrafter = {
             return (msg)
         } else {
             msg = (`${name} does not exist in settings.`)
-            DBTools.Utils.messages.errormsg(`AutoCrafter.GetSettings`, msg)
+            DBTools.Utils.messages.errormsgmsg(`AutoCrafter.GetSettings`, msg)
             return `Error: ${msg}`
         }
     },
@@ -989,7 +946,7 @@ DBTools.AutoCrafter = {
     set_mult: function (resource, new_multiplier) {
         if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) {
             var msg = `${resource} is null or doesn't exist in settings.`
-            DBTools.Utils.messages.errormsg(`AutoCrafter.set_muklt`, msg)
+            DBTools.Utils.messages.errormsgmsg(`AutoCrafter.set_muklt`, msg)
             console.log(msg)
             return 0
         }
@@ -1029,39 +986,24 @@ DBTools.AutoCrafter = {
         if (valid_inputs) {
             var clamped_scale = DBTools.Utils.Clamp(generic_max_value_scale, 1, Number.MAX_SAFE_INTEGER)
             this.enabled = enabled
-            //this.settings = settings
-            for (var index = 0; index < this.handled_craftables; index++) {
-                var name = this.handled_craftables[index]
-                if (DBTools.Utils.HasValue(settings[name])) {
-                    var saved = settings[name]
-                    var valid_setting = (DBTools.Utils.BoolCheck(saved.enabled, true, false) && (DBTools.Utils.IntCheck(saved.multiplier, 1)))
-                    if (valid_setting) {
-                        this.settings[name].enabled = saved.enabled
-                        this.settings[name].multiplier = DBTools.Utils.Clamp(saved.multiplier, 1, Number.MAX_SAFE_INTEGER)
-                    } else {
-                        console.log(`Warning: Saved settings for ${name} are invalid.`)
-                    }
-                    saved = prereqs[name]
-                    var valid_prereq = (DBTools.Utils.TypeCheck(saved.ingredients, 'array') && DBTools.Utils.BoolCheck(saved.requires_positive, true, false))
-                    if (valid_prereq) {
-                        for (var subindex = 0; subindex < saved.ingredients.length; subindex++) {
-                            var sameName = (saved.ingredients[subindex].name == this.prereqs[name].ingredients[subindex].name)
-                            var sameCost = (saved.ingredients[subindex].cost == this.prereqs[name].ingredients[subindex].cost)
-                            if (sameName && sameCost) {
-                                this.prereqs[name].ingredients[subindex].smin(saved.ingredients[subindex].min_val)
-                                this.prereqs[name].ingredients[subindex].smax(saved.ingredients[subindex].max_val)
-                            } else {
-                                console.log(`Warning: Saved ingredients for ${name} don't match reference.`)
+            this.generic_max_value_scale = clamped_scale
+            for(var index = 0; index < DBTools.Utils.resource_table.known_resources.length; index++){
+                var name = DBTools.Utils.resource_table.known_resources[index]
+                if(DBTools.Utils.HasValue(settings[name])){
+                    this.toggle_resource(name, settings[name].enabled)
+                    this.set_mult(name, settings[name].multiplier)
+                }
+                if(DBTools.Utils.HasValue(prereqs[name])){
+                    if(DBTools.Utils.HasValue(this.prereqs[name])){
+                        for(var subindex = 0; subindex < prereqs[name].ingredients.length; subindex++){
+                            if(this.prereqs[name].ingredients[subindex].name == prereqs[name].ingredients[subindex]){
+                                this.prereqs[name].ingredients[subindex].smin(prereqs[name].ingredients[subindex].min_val)
+                                this.prereqs[name].ingredients[subindex].smax(prereqs[name].ingredients[subindex].max_val)
                             }
                         }
-                        this.prereqs[name].requires_positive = saved.requires_positive
-                    } else {
-                        console.log(`Warning: Saved prereqs for ${name} are invalid.`)
                     }
                 }
             }
-            //this.prereqs = prereqs
-            this.generic_max_value_scale = clamped_scale
             return true
         } else {
             var err_header = `Error`;
@@ -1096,30 +1038,9 @@ DBTools.AutoCrafter = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsg(`AutoUnicorn.load_data`, error_array)
+            DBTools.Utils.messages.errormsgmsg(`AutoUnicorn.load_data`, error_array)
             console.log(composed_msg)
             return false
-        }
-    },
-
-    /**
-     * @returns {void}
-     */
-    Init: function(){
-        for(var index = 0; index < this.handled_craftables.length; index++){
-            var name = this.handled_craftables[index]
-            var craftdata = game.workshop.getCraft(name)
-            if(!DBTools.Utils.NullCheck(craftdata, true, true)){
-                var pricedata = game.workshop.getCraftPrice(craftdata)
-                var prereq_ingredients = []
-                var prereq_safe = false
-                if (name == 'wood' || name == 'compendium') { prereq_safe = true } else { prereq_safe = false }
-                this.settings[name] = new DBTools.Classes.crafting_setting(false, 1) 
-                for(var subindex = 0; subindex < pricedata.length; subindex++){
-                    prereq_ingredients.push(new DBTools.Classes.ingredient(pricedata[subindex].name, pricedata[subindex].val))
-                }
-                this.prereqs[name] = new DBTools.Classes.crafting_prereq(prereq_ingredients, prereq_safe)
-            }
         }
     },
 }
@@ -1200,7 +1121,7 @@ DBTools.AutoReligion = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsg(`AutoReligion.load_data`, error_array)
+            DBTools.Utils.messages.errormsgmsg(`AutoReligion.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
@@ -1350,7 +1271,7 @@ DBTools.AutoUnicorn = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsg(`AutoUnicorn.load_data`, error_array)
+            DBTools.Utils.messages.errormsgmsg(`AutoUnicorn.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
@@ -1406,7 +1327,7 @@ DBTools.AutoScience = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsg(`AutoScience.load_data`, error_array)
+            DBTools.Utils.messages.errormsgmsg(`AutoScience.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
@@ -1509,7 +1430,7 @@ DBTools.AutoHunt = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsg(`AutoCrafter.load_data`, error_array)
+            DBTools.Utils.messages.errormsgmsg(`AutoCrafter.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
