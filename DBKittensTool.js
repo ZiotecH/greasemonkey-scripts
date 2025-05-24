@@ -462,7 +462,7 @@ DBTools.Utils = {
          * @returns {void}
         */
         save_settings: function (save_id) {
-            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
             var savedata = {
                 global_data: {
                     GlobalTimer: DBTools.GlobalTimer,
@@ -510,7 +510,7 @@ DBTools.Utils = {
          * @returns {boolean}
          */
         check_for_saved_settings: function (save_id) {
-            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
             if (DBTools.Utils.HasValue(localStorage.getItem(save_id))) {
                 return true
             } else {
@@ -523,7 +523,7 @@ DBTools.Utils = {
          * @returns {boolean}
          */
         load_saved_settings: function (save_id) {
-            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
             var encoded_data;
             var savedata;
             var success = {
@@ -571,7 +571,7 @@ DBTools.Utils = {
          * @returns {boolean}
          */
         delete_saved_settings: function (save_id, force) {
-            save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            save_id = DBTools.Utils.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
             force = DBTools.Utils.BoolCheck(force,false,false)
             if(this.check_for_saved_settings(save_id)){
                 if(!force){
