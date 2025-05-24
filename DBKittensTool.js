@@ -567,10 +567,24 @@ DBTools.Utils = {
 
         /**
          * @param {string} save_id
-         * @returns {void}
+         * @param {bool} force
+         * @returns {boolean}
          */
-        delete_saved_settings: function (save_id) {
+        delete_saved_settings: function (save_id, force) {
             save_id = DBTools.Utisls.StrCheck(save_id, `kittensgame_dbtools_saved_settings`)
+            force = DBTools.Utils.BoolCheck(force,false,false)
+            if(this.check_for_saved_settings(save_id)){
+                if(!force){
+                    console.log(`WARNING; TRIED TO DELETE ${save_id}!`)
+                }
+                else{
+                    console.log(`WARNING; DELETING ${save_id}!`)
+                    localStorage.removeItem(save_id)
+                }
+                return true
+            }else{
+                return false
+            }
         },
     }
 }
