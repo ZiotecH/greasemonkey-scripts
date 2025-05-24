@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 30
+DBTools.version = 31
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -728,10 +728,7 @@ DBTools.Rate = function (number) {
  * @param {boolean} cancel 
  * @returns {void}
  */
-DBTools.CoreLoop = function (timeout, cancel) {
-    timeout = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(timeout, DBTools.GlobalTimer), 200, 86400)
-    cancel = DBTools.Utils.BoolCheck(cancel, false, DBTools.Halt)
-
+DBTools.CoreLoop = function () {
     /* Runners */
     DBTools.AutoCrafter.run()
     DBTools.AutoReligion.run()
@@ -740,8 +737,8 @@ DBTools.CoreLoop = function (timeout, cancel) {
     DBTools.AutoHunt.run()
 
     /* Self-Call */
-    if (!cancel) {
-        setTimeout(function () { DBTools.CoreLoop(timeout, DBTools.Halt) }, timeout)
+    if (!this.Halt) {
+        setTimeout(function () { DBTools.CoreLoop() }, DBTools.GlobalTimer)
     } else {
         DBTools.Utils.messages.wrapper(`CoreLoop instructed to cancel.`)
     }
