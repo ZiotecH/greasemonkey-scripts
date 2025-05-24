@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 28
+DBTools.version = 29
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -363,7 +363,7 @@ DBTools.Utils = {
          * @param {string} error_message Single string describing error
          */
         errormsg: function (sender, error_message) {
-            if (DBTools.Utils.TypeCheck(error_message)) {
+            if (DBTools.Utils.TypeCheck(error_message, 'array')) {
                 for (var index = 0; index < error_message.length; index++) {
                     game.msg(`${error_message[index]}`, `DBTools.ErrorDesc`, `DBTools.Error`, true)
                 }
@@ -379,7 +379,7 @@ DBTools.Utils = {
         * @param {string} info_message
         */
         infomsg: function (sender, info_message) {
-            if (DBTools.Utils.TypeCheck(info_message)) {
+            if (DBTools.Utils.TypeCheck(info_message, 'array')) {
                 for (var index = 0; index < info_message.length; index++) {
                     game.msg(`${info_message[index]}`, `DBTools.InfoSub`, `DBTools.Info`, true)
                 }
@@ -897,7 +897,7 @@ DBTools.AutoCrafter = {
                     if (this.settings[name].enabled){
                         var result = this.craft(name, this.settings[name].multiplier)
                         has_crafted = (has_crafted || result.success)
-                        craft_messages.push(result.message)
+                        if(result.success){craft_messages.push(result.message)}
                     }
                 }
             }
