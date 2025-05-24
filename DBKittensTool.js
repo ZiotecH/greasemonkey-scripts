@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 29
+DBTools.version = 30
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -328,7 +328,7 @@ DBTools.Utils = {
         wrapper: function (message, sender) {
             sender = DBTools.Utils.StrCheck(sender, "DBTools")
             game.msg(`${message}`, null, null, true)
-            game.msg(`${DBTools.Utils.TimeStamp()} ${sender}`, null, null, null)
+            game.msg(`${DBTools.Utils.TimeStamp(2)} ${sender}`, null, null, null)
         },
 
         /**
@@ -370,7 +370,7 @@ DBTools.Utils = {
             } else {
                 game.msg(`${error_message}`, `DBTools.ErrorDesc`, `DBTools.Error`, true)
             }
-            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - ERROR`, "DBTools.ErrorHeader", "DBTools.Error", null)
+            game.msg(`${DBTools.Utils.TimeStamp(2)} ${sender} - ERROR`, "DBTools.ErrorHeader", "DBTools.Error", null)
         },
 
         /**
@@ -386,7 +386,7 @@ DBTools.Utils = {
             } else {
                 game.msg(`${info_message}`, `DBTools.InfoSub`, `DBTools.Info`, true)
             }
-            game.msg(`${DBTools.Utils.TimeStamp()} ${sender} - Info`, "DBTools.InfoHeader", "DBTools.Info", null)
+            game.msg(`${DBTools.Utils.TimeStamp(2)} ${sender} - Info`, "DBTools.InfoHeader", "DBTools.Info", null)
         },
 
         /**
