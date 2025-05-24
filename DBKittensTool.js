@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 27
+DBTools.version = 28
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -42,7 +42,6 @@ DBTools.SetAutosaveInterval = function (number) {
 DBTools.Init = function () {
     DBTools.Utils.resource_init()
     DBTools.Utils.tab_init()
-    DBTools.AutoCrafter.Init()
     DBTools.Initiated = true
     if (this.Utils.load_save.check_for_saved_settings(this.save_id)) {
         this.Utils.load_save.load_saved_settings(this.save_id)
@@ -121,7 +120,7 @@ DBTools.load_globals = function (GlobalTimer, Precision, Halt, Debug, save_id, a
  * @returns {integer}
  */
 DBTools.SetPrecision = function (number) {
-    number = this.Utils.IntCheck(number, 3)
+    number = this.Utils.IntCheck(number, this.Precision)
     this.Precision = number
     return this.Precision
 }
@@ -131,7 +130,7 @@ DBTools.SetPrecision = function (number) {
  * @returns {boolean}
  */
 DBTools.ToggleDebug = function (forced_state) {
-    forced_state = this.Utils.BoolCheck(forced_state, false, this.Debug)
+    forced_state = this.Utils.BoolCheck(forced_state, false, !this.Debug)
     this.Debug = forced_state
     return this.Debug
 }
@@ -673,7 +672,7 @@ DBTools.Classes = {
 
         smax(number) {
             if (DBTools.Utils.TypeCheck(number, 'number')) {
-                number = DBTools.Utils.IntCheck(number, -1)
+                number = DBTools.Utils.IntCheck(number, Number.MAX_SAFE_INTEGER)
                 if (this.min_val > number) { number = DBTools.Utils.Clamp(number, this.min_val, Number.MAX_SAFE_INTEGER) }
                 this.max_val = number
                 return this.max_val
@@ -830,7 +829,7 @@ DBTools.AutoCrafter = {
     /**
      * @param {string} resource 
      * @param {integer} cost_multiplier 
-     * @returns {boolean}
+     * @returns {object}
      */
     craft: function (resource, cost_multiplier) {
         var can_craft = true
@@ -869,14 +868,11 @@ DBTools.AutoCrafter = {
                 can_craft = false
             }
         }
-        //console.log(`Able to craft ${resource}: ${can_craft}`)
         if (can_craft) {
             game.craft(resource, cost_multiplier)
-            game.msg(`+${(cost_multiplier * (1 + game.getResCraftRatio(resource))).toFixed(DBTools.Precision)} ${resource}`, "workshopautomation", null, "craft")
-            return true
-            //game.msg($I("workshop.crafted.msg", [game.getDisplayValueExt(cost_multiplier * (1 + game.getResCraftRatio(resource))), resource]), null, "craft");
+            return { success: true, message: `+${(cost_multiplier * (1 + game.getResCraftRatio(resource))).toFixed(DBTools.Precision)} ${resource}` }
         } else {
-            return false
+            return {success: false, message: null}
         }
     },
 
@@ -886,23 +882,27 @@ DBTools.AutoCrafter = {
      */
     run: function (forced) {
         if (this.enabled || DBTools.Utils.BoolCheck(forced, false, false)) {
-            var timestamp = DBTools.Utils.TimeStamp(2)
             var has_crafted = false
-            if (this.settings.wood.enabled) { has_crafted = has_crafted || this.craft("wood", this.settings.wood.multiplier) }
-            if (this.settings.beam.enabled) { has_crafted = has_crafted || this.craft("beam", this.settings.beam.multiplier) }
-            if (this.settings.scaffold.enabled) { has_crafted = has_crafted || this.craft("scaffold", this.settings.scaffold.multiplier) }
-            if (this.settings.ship.enabled) { has_crafted = has_crafted || this.craft("ship", this.settings.ship.multiplier) }
-            if (this.settings.slab.enabled) { has_crafted = has_crafted || this.craft("slab", this.settings.slab.multiplier) }
-            if (this.settings.plate.enabled) { has_crafted = has_crafted || this.craft("plate", this.settings.plate.multiplier) }
-            if (this.settings.steel.enabled) { has_crafted = has_crafted || this.craft("steel", this.settings.steel.multiplier) }
-            if (this.settings.gear.enabled) { has_crafted = has_crafted || this.craft("gear", this.settings.gear.multiplier) }
-            if (this.settings.alloy.enabled) { has_crafted = has_crafted || this.craft("alloy", this.settings.alloy.multiplier) }
-            if (this.settings.megalith.enabled) { has_crafted = has_crafted || this.craft("megalith", this.settings.megalith.multiplier) }
-            if (this.settings.parchment.enabled) { has_crafted = has_crafted || this.craft("parchment", this.settings.parchment.multiplier) }
-            if (this.settings.manuscript.enabled) { has_crafted = has_crafted || this.craft("manuscript", this.settings.manuscript.multiplier) }
-            if (this.settings.compendium.enabled) { has_crafted = has_crafted || this.craft("compendium", this.settings.compendium.multiplier) }
-            if (this.settings.blueprint.enabled) { has_crafted = has_crafted || this.craft("blueprint", this.settings.blueprint.multiplier) }
-            if (has_crafted) { game.msg(`DBAutoCraft ${timestamp}`, "workshopautomation", null, null) }
+            var craft_messages = []
+            if(DBTools.Debug){console.log("AutoCrafter.run - Debug Start")}
+            for(var index = 0; index < DBTools.Utils.resource_table.known_resources.length; index++){
+                var name = DBTools.Utils.resource_table.known_resources[index]
+                var res = Object.assign({}, DBTools.Utils.resource_table[name])
+                if (DBTools.Debug) {
+                    console.log(`Currently processing: ${name} (${index})`)
+                    console.log(`Resource is${{"true":"","false":" not"}[res.craftable]} craftable and${{"true":"","false":" not"}[res.isHiddenFromCrafting]} hidden.`)
+                    console.log(`Resource is${{"true":"","false":" not"}[this.settings[name]]} enabled.`)
+                }
+                if (res.craftable && !res.isHiddenFromCrafting){
+                    if (this.settings[name].enabled){
+                        var result = this.craft(name, this.settings[name].multiplier)
+                        has_crafted = (has_crafted || result.success)
+                        craft_messages.push(result.message)
+                    }
+                }
+            }
+            if (has_crafted) { DBTools.Utils.messages.infomsg(`DBAutoCraft`, craft_messages) }
+            if (DBTools.Debug) {console.log("AutoCrafter.run - Debug End")}
         }
     },
 
