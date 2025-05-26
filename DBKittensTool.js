@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 35
+DBTools.version = 36
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -1464,7 +1464,7 @@ DBTools.AutoHunt = {
 DBTools.UI = {
     Main: false,
     Settings: false,
-    Tables: {},
+    Nodes: {},
     Init: function(){
         this.Main = document.getElementById("game");
         this.Settings = document.createElement("div");

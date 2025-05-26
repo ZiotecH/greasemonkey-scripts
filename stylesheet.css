@@ -83,6 +83,19 @@
     width: 100%;
 }
 
+.res_enabled{
+    color:rgb(65, 210, 65);
+}
+.res_disabled{
+    color:rgb(128, 30, 30)
+}
+.res_toggle{
+    cursor: pointer;
+}
+.res_toggle:active{
+    color:rgba(96, 120, 47)
+}
+
 /*
 .res_prereq_text{}
 .res_prereq_value{}

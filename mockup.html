@@ -2,141 +2,217 @@
 <header>
     <link rel="stylesheet" type="text/css" href="stylesheet.css">
 </header>
+
 <body>
-<div id="steel" class="res_node">
-    <!-- Title -->
-    <div class="res_title">
-        Steel
+    <div id="dbtools_resource_settings">
+        <div id="dbtools_resource_steel" class="res_node">
+            <!-- Title -->
+            <div class="res_title">
+                Steel
+            </div>
+            <!-- Setting Wrapper -->
+            <div class="res_settings">
+                <!-- Setting Row 0 -->
+                <div class="res_setting_row">
+                    <div class="res_setting_cell res_setting_text">
+                        Enabled
+                    </div>
+                    <div class="res_setting_cell res_setting_value res_toggle">
+                        False
+                    </div>
+                </div>
+                <!-- Setting Row 1 -->
+                <div class="res_setting_row">
+                    <div class="res_setting_cell res_setting_text">
+                        Multiplier
+                    </div>
+                    <input class="res_setting_cell res_setting_value" type="number" min="1" value="1"/>
+                </div>
+                <!-- Setting Row 2 -->
+                <div class="res_setting_row">
+                    <div class="res_setting_cell res_setting_text">
+                        Maximum
+                    </div>
+                    <input class="res_setting_cell res_setting_value" type="number" min="0" value="0"/>
+                </div>
+                <!-- Setting Row 2 -->
+                <div class="res_setting_row">
+                    <div class="res_setting_header">
+                        Ingredients
+                    </div>
+                </div>
+                <!-- Prereq Wrapper -->
+                <div class="res_prereq_wrapper">
+                    <!-- Prereq[0] Row 0 -->
+                    <div class="res_prereq_row">
+                        <div class="res_prereq_header">
+                            Iron
+                        </div>
+                    </div>
+                    <!-- Prereq[0] Row 1 -->
+                    <div class="res_prereq_row">
+                        <!-- Prereq[0] Block 0 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Cost
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                100
+                            </div>
+                        </div>
+                        <!-- Prereq[0] Block 1 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Safe
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                False
+                            </div>
+                        </div>
+                        <!-- Prereq[0] Block 2 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Min
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                False
+                            </div>
+                        </div>
+                        <!-- Prereq[0] Block 3 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Max
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                False
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Prereq[1] Row 0 -->
+                    <div class="res_prereq_row">
+                        <div class="res_prereq_header">
+                            Coal
+                        </div>
+                    </div>
+                    <!-- Prereq[1] Row 1 -->
+                    <div class="res_prereq_row">
+                        <!-- Prereq[1] Block 0 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Cost
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                100
+                            </div>
+                        </div>
+                        <!-- Prereq[1] Block 1 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Safe
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                False
+                            </div>
+                        </div>
+                        <!-- Prereq[1] Block 2 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Min
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                False
+                            </div>
+                        </div>
+                        <!-- Prereq[1] Block 3 -->
+                        <div class="res_prereq_block">
+                            <div class="res_prereq_cell res_prereq_text">
+                                Max
+                            </div>
+                            <div class="res_prereq_cell res_prereq_value">
+                                False
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- Setting Wrapper -->
-    <div class="res_settings">
-        <!-- Setting Row 0 -->
-        <div class="res_setting_row">
-            <div class="res_setting_cell res_setting_text">
-                Enabled
-            </div>
-            <div class="res_setting_cell res_setting_value">
-                False
-            </div>
-        </div>
-        <!-- Setting Row 1 -->
-        <div class="res_setting_row">
-            <div class="res_setting_cell res_setting_text">
-                Multiplier
-            </div>
-            <div class="res_setting_cell res_setting_value">
-                1
-            </div>
-        </div>
-        <!-- Setting Row 2 -->
-        <div class="res_setting_row">
-            <div class="res_setting_cell res_setting_text">
-                Maximum
-            </div>
-            <div class="res_setting_cell res_setting_value">
-                0
-            </div>
-        </div>
-        <!-- Setting Row 2 -->
-        <div class="res_setting_row">
-            <div class="res_setting_header">
-                Ingredients
-            </div>
-        </div>
-        <!-- Prereq Wrapper -->
-        <div class="res_prereq_wrapper">
-            <!-- Prereq[0] Row 0 -->
-            <div class="res_prereq_row">
-                <div class="res_prereq_header">
-                    Iron
-                </div>
-            </div>
-            <!-- Prereq[0] Row 1 -->
-            <div class="res_prereq_row">
-                <!-- Prereq[0] Block 0 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Cost
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        100
-                    </div>
-                </div>
-                <!-- Prereq[0] Block 1 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Safe
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        False
-                    </div>
-                </div>
-                <!-- Prereq[0] Block 2 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Min
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        False
-                    </div>
-                </div>
-                <!-- Prereq[0] Block 3 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Max
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        False
-                    </div>
-                </div>
-            </div>
-            <!-- Prereq[1] Row 0 -->
-            <div class="res_prereq_row">
-                <div class="res_prereq_header">
-                    Coal
-                </div>
-            </div>
-            <!-- Prereq[1] Row 1 -->
-            <div class="res_prereq_row">
-                <!-- Prereq[1] Block 0 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Cost
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        100
-                    </div>
-                </div>
-                <!-- Prereq[1] Block 1 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Safe
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        False
-                    </div>
-                </div>
-                <!-- Prereq[1] Block 2 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Min
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        False
-                    </div>
-                </div>
-                <!-- Prereq[1] Block 3 -->
-                <div class="res_prereq_block">
-                    <div class="res_prereq_cell res_prereq_text">
-                        Max
-                    </div>
-                    <div class="res_prereq_cell res_prereq_value">
-                        False
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <script type="text/javascript">
+        clamp = function(val,min,max){
+            val = Math.max(val, min)
+            val = Math.min(val, max)
+            return val
+        }
+        var main_div = document.getElementById("dbtools_resource_settings")
+        var steel_node = {
+            main_node: document.getElementById("dbtools_resource_steel"),
+            setting_wrapper: false,
+            setting_enabled_value: false,
+            setting_mult_input: false,
+            setting_max_input: false,
+            enabled: false,
+            multiplier: 1,
+            maximum: 0,
+            set_mult: function(mult_val){
+                this.multiplier = clamp(parseInt(mult_val),1,Number.MAX_SAFE_INTEGER)
+                if (this.setting_mult_input.value != undefined) { this.setting_mult_input.value = this.multiplier }
+                console.log(this.multiplier)
+            },
+            set_max: function(max_val){
+                this.maximum = clamp(parseInt(max_val),0,Number.MAX_SAFE_INTEGER)
+                if(this.setting_max_input.value != undefined){this.setting_max_input.value = this.maximum}
+                console.log(this.maximum)
+            },
+        }
+
+        /**
+        * @returns {boolean}
+        */
+        steel_node.init = function () {
+            if (!steel_node.setting_wrapper && !steel_node.setting_enabled_value) {
+                steel_node.setting_wrapper = steel_node.main_node.children[1]
+                steel_node.setting_enabled_value = steel_node.setting_wrapper.children[0].children[1]
+                steel_node.setting_enabled_value.onclick = steel_node.resource_toggle
+                steel_node.setting_mult_input   = steel_node.setting_wrapper.children[1].children[1]
+                steel_node.setting_max_input    = steel_node.setting_wrapper.children[2].children[1]
+                steel_node.setting_mult_input.addEventListener("change",    function(){steel_node.set_mult(steel_node.setting_mult_input.value)})
+                steel_node.setting_max_input.addEventListener("change",     function(){steel_node.set_max(steel_node.setting_max_input.value)})
+                steel_node.update();
+                return true
+            } else {
+                return false
+            }
+        }
+
+        /**
+        * @returns {boolean}
+        */
+        steel_node.resource_toggle = function () {
+            if ((steel_node.setting_wrapper === false) && (steel_node.setting_enabled_value === false)) {
+                steel_node.init()
+                return false
+            } else {
+                steel_node.enabled = !steel_node.enabled
+                steel_node.update()
+                return true
+            }
+        }
+
+        steel_node.update = function(){
+            if (steel_node.enabled) {
+                steel_node.setting_enabled_value.classList.remove("res_disabled")
+                steel_node.setting_enabled_value.classList.add("res_enabled")
+                steel_node.setting_enabled_value.innerText = 'True'
+            } else {
+                steel_node.setting_enabled_value.classList.remove("res_enabled")
+                steel_node.setting_enabled_value.classList.add("res_disabled")
+                steel_node.setting_enabled_value.innerText = 'False'
+            }
+        }
+
+        steel_node.init()
+        var tracked_resources = [steel_node]
+    </script>
 </body>
+
 </html>
