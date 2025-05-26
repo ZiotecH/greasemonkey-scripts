@@ -1,0 +1,89 @@
+.res_node {
+    max-width: 250px;
+    text-align: center;
+    border: solid thin;
+}
+
+.res_title {
+    width: 100%;
+    border: none;
+    border-bottom: solid thin;
+    font-size: 20px;
+}
+
+.res_setting_header,
+.res_prereq_header {
+    width: 100%;
+    text-align: center;
+}
+
+.res_settings {
+    width: 100%;
+    border-bottom: none;
+}
+
+.res_setting_row,
+.res_prereq_row {
+    width: 100%;
+    border-bottom: solid thin;
+    display: flex;
+    flex-direction: row;
+    font-size: 16px;
+}
+
+.res_prereq_row {
+    column-gap: 12.5%;
+    column-count: 4;
+    flex-flow: row wrap;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.res_prereq_row:last-of-type {
+    border-bottom: none;
+}
+
+.res_prereq_block {
+    display: flex;
+    width: auto;
+    flex-direction: row;
+    flex-grow: 1;
+    flex-basis: 25%;
+}
+
+.res_prereq_block:nth-child(1),
+.res_prereq_block:nth-child(3) {
+    border-right: solid thin;
+}
+
+.res_prereq_block:nth-child(2),
+.res_prereq_block:nth-child(4) {
+    border-left: solid thin;
+}
+
+.res_setting_cell {
+    width: auto;
+    max-width: 50%;
+    flex-grow: 1;
+}
+
+.res_setting_text,
+.res_prereq_text {
+    text-align: left !important;
+    padding-left: 2px;
+}
+
+.res_setting_value,
+.res_prereq_value {
+    text-align: right !important;
+    padding-right: 2px;
+}
+
+.res_prereq_cell {
+    width: 100%;
+}
+
+/*
+.res_prereq_text{}
+.res_prereq_value{}
+*/

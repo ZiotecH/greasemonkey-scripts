@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 34
+DBTools.version = 35
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -1460,5 +1460,75 @@ DBTools.AutoHunt = {
         }
     },
 }
+
+DBTools.UI = {
+    Main: false,
+    Settings: false,
+    Tables: {},
+    Init: function(){
+        this.Main = document.getElementById("game");
+        this.Settings = document.createElement("div");
+        this.Main.appendChild(this.Settings);
+    },
+    Update: function(){},
+    /*
+    Too tedious, going with nested flex-divs instead.
+    ResBuilder: function(resource_name){
+        if(DBTools.Utils.HasValue(resource_name) && DBTools.Utils.TypeCheck(resource_name, "string")){
+            // Sanity check
+            if(DBTools.Utils.HasValue(this.Tables[resource_name])){return false}
+            // Check for resource
+            var valid_resource = false
+            valid_resource = (DBTools.Utils.HasValue(DBTools.Utils.resource_table[resource_name]) && DBTools.Utils.HasValue(DBTools.AutoCrafter.settings[resource_name]) && DBTools.Utils.HasValue(DBTools.AutoCrafter.prereqs[resource_name]))
+            if (valid_resource){
+                // Init node_object
+                var node_object = {
+                    name: resource_name,
+                    div: document.createElement("div"),
+                    table: {
+                        main_node: document.createElement("table"),
+                        tbody: document.createElement("tbody"),
+                        rows: { count: 0 }
+                    }
+                }
+                // Variables
+                var base_string = `dbtools_ui_${resource_name}`
+                var res_setting = Object.assign({}, DBTools.AutoCrafter.settings[resource_name])
+                var res_prereq  = Object.assign({}, DBTools.AutoCrafter.prereqs[resource_name])
+                // Set up table ID
+                node_object.table.div.id=`${base_string}_div`
+                node_object.table.main_node.id = `${base_string}_table`
+                // Build table rows
+                node_object.table.rows[0] = this.RowBuilder(true, resource_name)
+                node_object.table.rows[1] = this.RowBuilder(false, "Enabled", res_setting.enabled)
+                node_object.table.rows[2] = this.RowBuilder(false, "Maximum", res.setting.maximum)
+                node_object.table.rows[3] = 
+                node_object.table.rows.count = 3
+                // Iterate through ingredients and append one row for each
+            }
+        }
+    },
+    RowBuilder: function(is_header, text_cell, value_cell){
+        is_header = DBTools.Utils.BoolCheck(is_header,false,false)
+        value_cell = DBTools.Utils.NullCheck(value_cell,false,"null")
+        if(!DBTools.Utils.HasValue(text_cell)){
+            return false
+        }
+        var row_object = {
+            wrapper:    document.createElement("tr"),
+        }
+        if(is_header){
+            row_object.header           = document.createElement("th")
+            row_object.header.innerText = text_cell
+        }else{
+            row_object.text             = document.createElement("td")
+            row_object.text.innerText   = text_cell
+            row_object.value            = document.createElement("td")
+            row_object.value.innerText  = value_cell
+        }
+        return row_object
+    },
+    */
+},
 
 DBTools.Init()
