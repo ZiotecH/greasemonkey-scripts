@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 33
+DBTools.version = 34
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -109,7 +109,7 @@ DBTools.load_globals = function (GlobalTimer, Precision, Halt, Debug, save_id, a
             err_header = `${err_header}s`
         }
         composed_msg = `${err_header}${composed_msg}`
-        DBTools.Utils.messages.errormsgmsg(`DBTools.load_globals`, error_array)
+        DBTools.Utils.messages.errormsg(`DBTools.load_globals`, error_array)
         console.log(composed_msg)
         return false
     }
@@ -584,7 +584,7 @@ DBTools.Utils = {
                     `Globals: ${success.globals}`
                 );
             } else {
-                DBTools.Utils.messages.errormsgmsg(`load_save.load_saved_settings`, `${save_id} doesn't exist in localStorage.`)
+                DBTools.Utils.messages.errormsg(`load_save.load_saved_settings`, `${save_id} doesn't exist in localStorage.`)
                 return false
             }
         },
@@ -630,13 +630,16 @@ DBTools.Classes = {
     crafting_setting: class {
         enabled = false
         multiplier = 1
+        maximum = 0
 
-        constructor(input_enabled, input_mult){
+        constructor(input_enabled, input_mult, input_maximum){
             input_enabled = DBTools.Utils.BoolCheck(input_enabled,false,false)
             input_mult = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_mult, 1), 1, Number.MAX_SAFE_INTEGER)
+            input_maximum = DBTools.Utils.Clamp(DBTools.Utils.IntCheck(input_maximum, 0, Number.MAX_SAFE_INTEGER))
 
             this.enabled = input_enabled
             this.multiplier = input_mult
+            this.maximum = input_maximum
         }
     },
 
@@ -886,12 +889,15 @@ DBTools.AutoCrafter = {
                 var name = DBTools.Utils.resource_table.known_resources[index]
                 var res = Object.assign({}, DBTools.Utils.resource_table[name])
                 if (DBTools.Debug) {
+                    var ynt = {true:"",false:"not"}
                     console.log(`Currently processing: ${name} (${index})`)
-                    console.log(`Resource is${{"true":"","false":" not"}[res.craftable]} craftable and${{"true":"","false":" not"}[res.isHiddenFromCrafting]} hidden.`)
-                    console.log(`Resource is${{"true":"","false":" not"}[this.settings[name]]} enabled.`)
+                    console.log(`Resource is${ynt[res.craftable]} craftable and${ynt[res.isHiddenFromCrafting]} hidden.`)
+                    console.log(`Resource is${ynt[this.settings[name]]} enabled.`)
                 }
                 if (res.craftable && !res.isHiddenFromCrafting){
-                    if (this.settings[name].enabled){
+                    var limit_check = true
+                    if (this.settings[name].maximum >= 1) { limit_check = (DBTools.Utils.resource_table[name].value < this.settings[name].maximum)}
+                    if (this.settings[name].enabled && limit_check){
                         var result = this.craft(name, this.settings[name].multiplier)
                         has_crafted = (has_crafted || result.success)
                         if(result.success){craft_messages.push(result.message)}
@@ -930,7 +936,7 @@ DBTools.AutoCrafter = {
             return (msg)
         } else {
             msg = (`${name} does not exist in settings.`)
-            DBTools.Utils.messages.errormsgmsg(`AutoCrafter.GetSettings`, msg)
+            DBTools.Utils.messages.errormsg(`AutoCrafter.GetSettings`, msg)
             return `Error: ${msg}`
         }
     },
@@ -943,7 +949,7 @@ DBTools.AutoCrafter = {
     set_mult: function (resource, new_multiplier) {
         if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) {
             var msg = `${resource} is null or doesn't exist in settings.`
-            DBTools.Utils.messages.errormsgmsg(`AutoCrafter.set_muklt`, msg)
+            DBTools.Utils.messages.errormsg(`AutoCrafter.set_muklt`, msg)
             console.log(msg)
             return 0
         }
@@ -951,6 +957,24 @@ DBTools.AutoCrafter = {
         DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.settings[resource].multiplier, new_multiplier)
         this.settings[resource].multiplier = new_multiplier
         return this.settings[resource].multiplier
+    },
+
+    /**
+     * @param {string} resource
+     * @param {integer} new_maximum
+     * @returns {integer}
+     */
+    set_maximum: function(resource, new_maximum){
+        if (DBTools.Utils.NullCheck(resource, true) || DBTools.Utils.NullCheck(this.settings[resource], true)) {
+            var msg = `${resource} is null or doesn't exist in settings.`
+            DBTools.Utils.messages.errormsg(`AutoCrafter.set_muklt`, msg)
+            console.log(msg)
+            return 0
+        }
+        new_maximum = Math.max(DBTools.Utils.IntCheck(new_maximum), 1)
+        DBTools.Utils.messages.changed_value(`AutoCrafter.settings.${resource}`, this.settings[resource].maximum, new_maximum)
+        this.settings[resource].maximum = new_maximum
+        return this.settings[resource].maximum
     },
 
     /**
@@ -989,6 +1013,9 @@ DBTools.AutoCrafter = {
                 if(DBTools.Utils.HasValue(settings[name])){
                     this.toggle_resource(name, settings[name].enabled)
                     this.set_mult(name, settings[name].multiplier)
+                    if(DBTools.Utils.HasValue(settings[name].maximum)){
+                        this.set_maximum(name, settings[name].maximum)
+                    }
                 }
                 if(DBTools.Utils.HasValue(prereqs[name])){
                     if(DBTools.Utils.HasValue(this.prereqs[name])){
@@ -1035,7 +1062,7 @@ DBTools.AutoCrafter = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsgmsg(`AutoUnicorn.load_data`, error_array)
+            DBTools.Utils.messages.errormsg(`AutoUnicorn.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
@@ -1118,7 +1145,7 @@ DBTools.AutoReligion = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsgmsg(`AutoReligion.load_data`, error_array)
+            DBTools.Utils.messages.errormsg(`AutoReligion.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
@@ -1268,7 +1295,7 @@ DBTools.AutoUnicorn = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsgmsg(`AutoUnicorn.load_data`, error_array)
+            DBTools.Utils.messages.errormsg(`AutoUnicorn.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
@@ -1324,7 +1351,7 @@ DBTools.AutoScience = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsgmsg(`AutoScience.load_data`, error_array)
+            DBTools.Utils.messages.errormsg(`AutoScience.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
@@ -1427,7 +1454,7 @@ DBTools.AutoHunt = {
                 err_header = `${err_header}s`
             }
             composed_msg = `${err_header}${composed_msg}`
-            DBTools.Utils.messages.errormsgmsg(`AutoCrafter.load_data`, error_array)
+            DBTools.Utils.messages.errormsg(`AutoCrafter.load_data`, error_array)
             console.log(composed_msg)
             return false
         }
