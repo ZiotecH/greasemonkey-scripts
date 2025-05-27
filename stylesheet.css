@@ -2,6 +2,7 @@
     max-width: 250px;
     text-align: center;
     border: solid thin;
+    margin-top:2px;
 }
 
 .res_title {
@@ -95,8 +96,10 @@
 .res_toggle:active{
     color:rgba(96, 120, 47)
 }
-
-/*
-.res_prereq_text{}
-.res_prereq_value{}
-*/
+.hidden{
+    display: none;
+}
+#dbtools_ui_settings_main{
+    min-width: 250px;
+    margin-top: 10px;
+}

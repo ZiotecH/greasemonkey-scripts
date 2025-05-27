@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 36
+DBTools.version = 37
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -7,6 +7,7 @@ DBTools.Precision = 3
 DBTools.Initiated = false
 DBTools.autosave = false
 DBTools.autosave_interval = 3600000
+DBTools.ResLen = 0
 
 /**
  * Not sure how I'll implement this yet, but eh
@@ -42,6 +43,7 @@ DBTools.SetAutosaveInterval = function (number) {
 DBTools.Init = function () {
     DBTools.Utils.resource_init()
     DBTools.Utils.tab_init()
+    DBTools.UI.Init()
     DBTools.Initiated = true
     if (this.Utils.load_save.check_for_saved_settings(this.save_id)) {
         this.Utils.load_save.load_saved_settings(this.save_id)
@@ -317,6 +319,7 @@ DBTools.Utils = {
                 this.messages.errormsg(`Utils.resource_init`, `${game.resPool.resources[index].name} doesn't exist in resource table.`)
             }
         }
+        DBTools.ResLen = this.resource_table.known_resources.length
         return true
     },
 
@@ -701,6 +704,145 @@ DBTools.Classes = {
             return this.name
         }
     },
+
+    ui: {
+        res_template: class{
+            resource_id;
+            div_node;
+            state_node;
+            mult_node;
+            max_node;
+            state=false;
+            toggle_handler() {
+                    var a = this.resource_id
+                    DBTools.AutoCrafter.toggle_resource(a)
+                    this.state = DBTools.AutoCrafter.settings[a].enabled
+                    this.update_text()
+                }
+            update_text(){
+                    if (DBTools.Utils.HasValue(this.state_node)) {
+                        if (this.state) {
+                            this.state_node.classList.remove("res_disabled")
+                            this.state_node.classList.add("res_enabled")
+                            this.state_node.innerText = "True"
+                        } else {
+                            this.state_node.classList.remove("res_enabled")
+                            this.state_node.classList.add("res_disabled")
+                            this.state_node.innerText = "False"
+                        }
+                    }
+                }
+            update_mult() {
+                    var a = this.resource_id
+                    var b = this.mult_node.value
+                    var new_mult = DBTools.Utils.Clamp(parseInt(b), 1, Number.MAX_SAFE_INTEGER)
+                    DBTools.AutoCrafter.set_mult(a, new_mult)
+                }
+            update_max() {
+                    var a = this.resource_id
+                    var b = this.max_node.value
+                    var new_max = DBTools.Utils.Clamp(parseInt(b), 0, Number.MAX_SAFE_INTEGER)
+                    DBTools.AutoCrafter.set_maximum(a, new_max)
+                }
+
+            constructor(resource_id){
+                var src = {
+                    s: Object.assign({}, DBTools.AutoCrafter.settings[resource_id]),
+                    p: Object.assign({}, DBTools.AutoCrafter.prereqs[resource_id]),
+                }
+                this.resource_id = resource_id;
+                this.state = src.s.enabled
+                var a = document.createElement("div");
+                a.id = `dbtools_ui_res_${resource_id}_main`
+                a.classList.add("res_node")
+                a.classList.add("hidden")
+                var b = document.createElement("div")
+                b.classList.add("res_title")
+                var c = document.createElement("div")
+                c.classList.add("res_settings")
+                // Setting Rows
+                var d0 = document.createElement("div")
+                var d1 = document.createElement("div")
+                var d2 = document.createElement("div")
+                // Row 0 Cells (State)
+                var d0a0 = document.createElement("div")
+                var d0a1 = document.createElement("div")
+                // Row 1 Cells (Mult)
+                var d1a0 = document.createElement("div")
+                var d1a1 = document.createElement("input")
+                // Row 2 Cells (Max)
+                var d2a0 = document.createElement("div")
+                var d2a1 = document.createElement("input")
+                // Prereq Title (Ingredients)
+                var e = document.createElement("div")
+                var f = document.createElement("div")
+                // Prereq Wrapper
+                var g = document.createElement("div")
+                // INIT SETTINGS
+                d0.classList.add("res_setting_row")
+                d0a0.classList.add("res_setting_cell")
+                d0a0.classList.add("res_setting_text")
+                d0a1.classList.add("res_setting_cell")
+                d0a1.classList.add("res_setting_value")
+                d1.classList.add("res_setting_row")
+                d1a0.classList.add("res_setting_cell")
+                d1a0.classList.add("res_setting_text")
+                d1a1.classList.add("res_setting_cell")
+                d1a1.classList.add("res_setting_value")
+                d2.classList.add("res_setting_row")
+                d2a0.classList.add("res_setting_cell")
+                d2a0.classList.add("res_setting_text")
+                d2a1.classList.add("res_setting_cell")
+                d2a1.classList.add("res_setting_value")
+                // Text
+                b.innerText = `${resource_id}`
+                d0a0.innerText = "Enabled"
+                d0a1.innerText = "null"
+                d1a0.innerText = "Multiplier"
+                d2a0.innerText = "Maximum"
+                e.classList.add("res_setting_row")
+                f.classList.add("res_setting_header")
+                f.innerText = "Ingredients"
+                // Inputs
+                d1a1.type = "number"
+                d1a1.min = "1"
+                d1a1.value = 1
+                d2a1.type = "number"
+                d2a1.min = "0"
+                d2a1.value = 0
+                /* PER-INGREDIENT SETUP */
+                this.div_node = a
+                this.state_node = d0a1
+                this.mult_node = d1a1
+                this.max_node = d2a1
+                a.appendChild(b)
+                a.appendChild(c)
+                c.appendChild(d0)
+                d0.appendChild(d0a0)
+                d0.appendChild(d0a1)
+                c.appendChild(d1)
+                d1.appendChild(d1a0)
+                d1.appendChild(d1a1)
+                c.appendChild(d2)
+                d2.appendChild(d2a0)
+                d2.appendChild(d2a1)
+                c.appendChild(e)
+                e.appendChild(f)
+                a.appendChild(g)
+                if(false){
+                for(var i = 0; i < src.p.ingredients.length; i++){
+                    var t = Object.assign({}, src.p.ingredients[i])
+                    g.appendChild(new DBTools.Classes.ui.ing_template(t.name, t.requires_positive, t.min_val, t.max_val))
+                }
+                }
+                this.update_text()
+            }
+
+        },
+        ing_template: class{
+            /* TODO: Finish setting up ingredient html builder */
+        },
+    },
 }
 
 /**
@@ -894,7 +1036,7 @@ DBTools.AutoCrafter = {
                     console.log(`Resource is${ynt[res.craftable]} craftable and${ynt[res.isHiddenFromCrafting]} hidden.`)
                     console.log(`Resource is${ynt[this.settings[name]]} enabled.`)
                 }
-                if (res.craftable && !res.isHiddenFromCrafting){
+                if (res.craftable && !res.isHiddenFromCrafting && (res.unlocked && res.visible)){
                     var limit_check = true
                     if (this.settings[name].maximum >= 1) { limit_check = (DBTools.Utils.resource_table[name].value < this.settings[name].maximum)}
                     if (this.settings[name].enabled && limit_check){
@@ -1462,73 +1604,66 @@ DBTools.AutoHunt = {
 }
 
 DBTools.UI = {
+    Body: false,
+    Head: false,
     Main: false,
     Settings: false,
+    Stylesheet: false,
+    B64: `LnJlc19ub2RlIHsKICAgIG1heC13aWR0aDogMjUwcHg7CiAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICBib3JkZXI6IHNvbGlkIHRoaW47CiAgICBtYXJnaW4tdG9wOjJweDsKfQoKLnJlc190aXRsZSB7CiAgICB3aWR0aDogMTAwJTsKICAgIGJvcmRlcjogbm9uZTsKICAgIGJvcmRlci1ib3R0b206IHNvbGlkIHRoaW47CiAgICBmb250LXNpemU6IDIwcHg7Cn0KCi5yZXNfc2V0dGluZ19oZWFkZXIsCi5yZXNfcHJlcmVxX2hlYWRlciB7CiAgICB3aWR0aDogMTAwJTsKICAgIHRleHQtYWxpZ246IGNlbnRlcjsKfQoKLnJlc19zZXR0aW5ncyB7CiAgICB3aWR0aDogMTAwJTsKICAgIGJvcmRlci1ib3R0b206IG5vbmU7Cn0KCi5yZXNfc2V0dGluZ19yb3csCi5yZXNfcHJlcmVxX3JvdyB7CiAgICB3aWR0aDogMTAwJTsKICAgIGJvcmRlci1ib3R0b206IHNvbGlkIHRoaW47CiAgICBkaXNwbGF5OiBmbGV4OwogICAgZmxleC1kaXJlY3Rpb246IHJvdzsKICAgIGZvbnQtc2l6ZTogMTZweDsKfQoKLnJlc19wcmVyZXFfcm93IHsKICAgIGNvbHVtbi1nYXA6IDEyLjUlOwogICAgY29sdW1uLWNvdW50OiA0OwogICAgZmxleC1mbG93OiByb3cgd3JhcDsKICAgIGp1c3RpZnktY29udGVudDogY2VudGVyOwogICAgZm9udC1zaXplOiAxMnB4Owp9CgoucmVzX3ByZXJlcV9yb3c6bGFzdC1vZi10eXBlIHsKICAgIGJvcmRlci1ib3R0b206IG5vbmU7Cn0KCi5yZXNfcHJlcmVxX2Jsb2NrIHsKICAgIGRpc3BsYXk6IGZsZXg7CiAgICB3aWR0aDogYXV0bzsKICAgIGZsZXgtZGlyZWN0aW9uOiByb3c7CiAgICBmbGV4LWdyb3c6IDE7CiAgICBmbGV4LWJhc2lzOiAyNSU7Cn0KCi5yZXNfcHJlcmVxX2Jsb2NrOm50aC1jaGlsZCgxKSwKLnJlc19wcmVyZXFfYmxvY2s6bnRoLWNoaWxkKDMpIHsKICAgIGJvcmRlci1yaWdodDogc29saWQgdGhpbjsKfQoKLnJlc19wcmVyZXFfYmxvY2s6bnRoLWNoaWxkKDIpLAoucmVzX3ByZXJlcV9ibG9jazpudGgtY2hpbGQoNCkgewogICAgYm9yZGVyLWxlZnQ6IHNvbGlkIHRoaW47Cn0KCi5yZXNfc2V0dGluZ19jZWxsIHsKICAgIHdpZHRoOiBhdXRvOwogICAgbWF4LXdpZHRoOiA1MCU7CiAgICBmbGV4LWdyb3c6IDE7Cn0KCi5yZXNfc2V0dGluZ190ZXh0LAoucmVzX3ByZXJlcV90ZXh0IHsKICAgIHRleHQtYWxpZ246IGxlZnQgIWltcG9ydGFudDsKICAgIHBhZGRpbmctbGVmdDogMnB4Owp9CgoucmVzX3NldHRpbmdfdmFsdWUsCi5yZXNfcHJlcmVxX3ZhbHVlIHsKICAgIHRleHQtYWxpZ246IHJpZ2h0ICFpbXBvcnRhbnQ7CiAgICBwYWRkaW5nLXJpZ2h0OiAycHg7Cn0KCi5yZXNfcHJlcmVxX2NlbGwgewogICAgd2lkdGg6IDEwMCU7Cn0KCi5yZXNfZW5hYmxlZHsKICAgIGNvbG9yOnJnYig2NSwgMjEwLCA2NSk7Cn0KLnJlc19kaXNhYmxlZHsKICAgIGNvbG9yOnJnYigxMjgsIDMwLCAzMCkKfQoucmVzX3RvZ2dsZXsKICAgIGN1cnNvcjogcG9pbnRlcjsKfQoucmVzX3RvZ2dsZTphY3RpdmV7CiAgICBjb2xvcjpyZ2JhKDk2LCAxMjAsIDQ3KQp9Ci5oaWRkZW57CiAgICBkaXNwbGF5OiBub25lOwp9CiNkYnRvb2xzX3VpX3NldHRpbmdzX21haW57CiAgICBtaW4td2lkdGg6IDI1MHB4OwogICAgbWFyZ2luLXRvcDogMTBweDsKfQ==`,
     Nodes: {},
     Init: function(){
-        this.Main = document.getElementById("game");
-        this.Settings = document.createElement("div");
-        this.Main.appendChild(this.Settings);
-    },
-    Update: function(){},
-    /*
-    Too tedious, going with nested flex-divs instead.
-    ResBuilder: function(resource_name){
-        if(DBTools.Utils.HasValue(resource_name) && DBTools.Utils.TypeCheck(resource_name, "string")){
-            // Sanity check
-            if(DBTools.Utils.HasValue(this.Tables[resource_name])){return false}
-            // Check for resource
-            var valid_resource = false
-            valid_resource = (DBTools.Utils.HasValue(DBTools.Utils.resource_table[resource_name]) && DBTools.Utils.HasValue(DBTools.AutoCrafter.settings[resource_name]) && DBTools.Utils.HasValue(DBTools.AutoCrafter.prereqs[resource_name]))
-            if (valid_resource){
-                // Init node_object
-                var node_object = {
-                    name: resource_name,
-                    div: document.createElement("div"),
-                    table: {
-                        main_node: document.createElement("table"),
-                        tbody: document.createElement("tbody"),
-                        rows: { count: 0 }
+        if(!DBTools.Initiated){
+            this.Main = document.getElementById("game");
+            this.Settings = document.createElement("div");
+            this.Settings.id="dbtools_ui_settings_main"
+            this.Stylesheet = document.createElement("style")
+            this.Stylesheet.id = "dbtools_ui_stylesheet"
+            this.Stylesheet.rel = "stylesheet"
+            this.Stylesheet.type = "text/css"
+            this.Stylesheet.innerHTML = atob(this.B64)
+            this.Body = document.getElementsByTagName("body")[0]
+            this.Head = document.getElementsByTagName("head")[0]
+            this.Main.appendChild(this.Settings);
+            this.Head.appendChild(this.Stylesheet)
+            for(var i = 0; i < DBTools.ResLen; i++){
+                var name = DBTools.Utils.resource_table.known_resources[i];
+                var a = Object.assign({}, DBTools.Utils.resource_table[name])
+                if(a.craftable){
+                    if(DBTools.Utils.HasValue(DBTools.AutoCrafter.settings[name])){
+                        console.log(`Creating node ${name}: ${this.Create_Node(name)}`)
                     }
                 }
-                // Variables
-                var base_string = `dbtools_ui_${resource_name}`
-                var res_setting = Object.assign({}, DBTools.AutoCrafter.settings[resource_name])
-                var res_prereq  = Object.assign({}, DBTools.AutoCrafter.prereqs[resource_name])
-                // Set up table ID
-                node_object.table.div.id=`${base_string}_div`
-                node_object.table.main_node.id = `${base_string}_table`
-                // Build table rows
-                node_object.table.rows[0] = this.RowBuilder(true, resource_name)
-                node_object.table.rows[1] = this.RowBuilder(false, "Enabled", res_setting.enabled)
-                node_object.table.rows[2] = this.RowBuilder(false, "Maximum", res.setting.maximum)
-                node_object.table.rows[3] = 
-                node_object.table.rows.count = 3
-                // Iterate through ingredients and append one row for each
+            }
+            this.Update()
+            return true
+        }else{
+            return false
+        }
+    },
+    Update: function(){
+        for(var i = 0; i < DBTools.ResLen; i++){
+            var name = DBTools.Utils.resource_table.known_resources[i]
+            if(DBTools.Utils.HasValue(this.Nodes[name])){
+                if (DBTools.Utils.resource_table[name].unlocked && DBTools.Utils.resource_table[name].visible){
+                    this.Nodes[name].div_node.classList.remove("hidden")
+                }
             }
         }
     },
-    RowBuilder: function(is_header, text_cell, value_cell){
-        is_header = DBTools.Utils.BoolCheck(is_header,false,false)
-        value_cell = DBTools.Utils.NullCheck(value_cell,false,"null")
-        if(!DBTools.Utils.HasValue(text_cell)){
+    Create_Node: function(resource_id){
+        if(!DBTools.Utils.HasValue(this.Nodes[resource_id])){
+            this.Nodes[resource_id] = new DBTools.Classes.ui.res_template(resource_id)
+            /* ??? */
+            this.Nodes[resource_id].state_node.onclick = this.Nodes[resource_id].toggle_handler
+            this.Nodes[resource_id].mult_node.addEventListener("change", this.Nodes[resource_id].update_mult)
+            this.Nodes[resource_id].max_node.addEventListener("change", this.Nodes[resource_id].update_max)
+            /* Append to Settings */
+            this.Settings.appendChild(this.Nodes[resource_id].div_node)
+            return true
+        }else{
             return false
         }
-        var row_object = {
-            wrapper:    document.createElement("tr"),
-        }
-        if(is_header){
-            row_object.header           = document.createElement("th")
-            row_object.header.innerText = text_cell
-        }else{
-            row_object.text             = document.createElement("td")
-            row_object.text.innerText   = text_cell
-            row_object.value            = document.createElement("td")
-            row_object.value.innerText  = value_cell
-        }
-        return row_object
-    },
-    */
+    }
 },
 
 DBTools.Init()
