@@ -1,5 +1,5 @@
 var DBTools = new Object
-DBTools.version = 37
+DBTools.version = 38
 DBTools.Halt = true
 DBTools.GlobalTimer = 1000
 DBTools.Debug = false
@@ -397,7 +397,8 @@ DBTools.Utils = {
         * @param {bool} input_enabled
         * @param {integer} input_multiplier 
         */
-        autocrafter_settings: function (input_name, input_enabled, input_multiplier) {
+        autocrafter_settings: function (input_name, input_enabled, input_multiplier, input_maximum) {
+            game.msg(`Maximum: ${input_maximum}`, "DBTools.AutoCrafter", "item_settings", true)
             game.msg(`Multiplier: ${input_multiplier}`, "DBTools.AutoCrafter", "item_settings", true)
             game.msg(`Enabled: ${input_enabled}`, "DBTools.AutoCrafter", "item_settings", true)
             game.msg(`Name: ${input_name}`, "DBTools.AutoCrafter", "item_settings", true)
@@ -573,7 +574,7 @@ DBTools.Utils = {
                 setting = savedata.autounicorn
                 success.autounicorn = DBTools.AutoUnicorn.load_data(setting.enabled, setting.min_val, setting.multiplier, setting.base_cost)
                 setting = savedata.autoscience
-                success.autoscience = DBTools.AutoUnicorn.load_data(setting.enabled)
+                success.autoscience = DBTools.AutoScience.load_data(setting.enabled)
                 setting = savedata.autohunt
                 success.autohunt = DBTools.AutoHunt.load_data(setting.enabled, setting.cost, setting.multiplier)
                 setting = savedata.global_data
@@ -998,13 +999,13 @@ DBTools.AutoCrafter = {
             }
 
             if (DBTools.Debug) {
-                console.log(`${resource}: at_cap(${at_cap}) && can_afford(${can_afford})`)
-                console.log(`${resource}_mv[${current_resource.maxValue}]: ${current_resource.calculated_maxValue} = ${current_resource.calculated_cost} * ${this.generic_max_value_scale}`)
+                console.log(`${current_resource.name}: at_cap(${at_cap}) && can_afford(${can_afford}) && is_safe(${is_safe})`)
+                console.log(`${current_resource.name}_mv[${current_resource.maxValue}]: ${current_resource.calculated_maxValue} = ${current_resource.calculated_cost} * ${this.generic_max_value_scale}`)
                 console.log(`Current Ingredient: ${current_resource.name}\n> Current Cost: ${current_resource.base_cost}\n> Craft Barrier: ${current_resource.calculated_maxValue}\n> Current Amount: ${current_resource.value}\n> Possible: ${can_afford}`)
             }
 
 
-            if (at_cap && can_afford) {
+            if (at_cap && can_afford && is_safe) {
                 can_craft = (can_craft && true);
             } else {
                 can_craft = false
@@ -1027,16 +1028,40 @@ DBTools.AutoCrafter = {
             var has_crafted = false
             var craft_messages = []
             if(DBTools.Debug){console.log("AutoCrafter.run - Debug Start")}
-            for(var index = 0; index < DBTools.Utils.resource_table.known_resources.length; index++){
+            for(var index = 0; index < DBTools.ResLen; index++){
                 var name = DBTools.Utils.resource_table.known_resources[index]
                 var res = Object.assign({}, DBTools.Utils.resource_table[name])
                 if (DBTools.Debug) {
-                    var ynt = {true:"",false:"not"}
                     console.log(`Currently processing: ${name} (${index})`)
-                    console.log(`Resource is${ynt[res.craftable]} craftable and${ynt[res.isHiddenFromCrafting]} hidden.`)
-                    console.log(`Resource is${ynt[this.settings[name]]} enabled.`)
+                    var debmsg = `> Resource is`
+                    if(!res.craftable){debmsg = `${debmsg} not`}
+                    debmsg = `${debmsg} craftable and`
+                    if(!res.isHiddenFromCrafting){
+                        debmsg = `${debmsg} not`
+                    }
+                    debmsg = `${debmsg} hidden.`
+                    console.log(`${debmsg}`)
+                    
+                    if(res.craftable){
+                        if(this.settings[name].enabled){
+                            console.log(`> Resource is enabled.`)
+                        }else{
+                            console.log(`> Resource is disabled.`)
+                        }
+                    }
+                    if(res.unlocked){
+                        console.log("> Resource is unlocked.")
+                    }else{
+                        console.log("> Resource is locked.")
+                    }
+                    if(res.visible){
+                        console.log("> Resource is visible.")
+                    }else{
+                        console.log("> Resource is invisible.")
+                    }
+
                 }
-                if (res.craftable && !res.isHiddenFromCrafting && (res.unlocked && res.visible)){
+                if (res.craftable && !res.isHiddenFromCrafting && res.unlocked){
                     var limit_check = true
                     if (this.settings[name].maximum >= 1) { limit_check = (DBTools.Utils.resource_table[name].value < this.settings[name].maximum)}
                     if (this.settings[name].enabled && limit_check){
@@ -1073,8 +1098,8 @@ DBTools.AutoCrafter = {
         name = DBTools.Utils.StrCheck(name, false)
         if (DBTools.Utils.HasValue(this.settings[name])) {
             tmp = this.settings[name];
-            msg = (`Name: ${name}\nEnabled: ${tmp.enabled}\nMultiplier: ${tmp.multiplier}`)
-            DBTools.Utils.messages.autocrafter_settings(name, tmp.enabled, tmp.multiplier)
+            msg = (`Name: ${name}\nEnabled: ${tmp.enabled}\nMultiplier: ${tmp.multiplier}\nMaximum: ${tmp.maximum}`)
+            DBTools.Utils.messages.autocrafter_settings(name, tmp.enabled, tmp.multiplier, tmp.maximum)
             return (msg)
         } else {
             msg = (`${name} does not exist in settings.`)
@@ -1150,7 +1175,7 @@ DBTools.AutoCrafter = {
             var clamped_scale = DBTools.Utils.Clamp(generic_max_value_scale, 1, Number.MAX_SAFE_INTEGER)
             this.enabled = enabled
             this.generic_max_value_scale = clamped_scale
-            for(var index = 0; index < DBTools.Utils.resource_table.known_resources.length; index++){
+            for(var index = 0; index < DBTools.ResLen; index++){
                 var name = DBTools.Utils.resource_table.known_resources[index]
                 if(DBTools.Utils.HasValue(settings[name])){
                     this.toggle_resource(name, settings[name].enabled)
